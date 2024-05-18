@@ -15,14 +15,15 @@ from .game.player import Player
 from .game.level.menu import Menu
 
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 1024
 SCREEN_TITLE = "Starting Template"
 
 LEVELS: dict[State, type[Level]] = {
     State.Menu: Menu,
     # State.WorldMap: cośtam
 }
+
 
 class MyGame(arcade.Window):
     """
@@ -43,11 +44,14 @@ class MyGame(arcade.Window):
 
         arcade.set_background_color(arcade.color.AMAZON)
 
+        # TODO: this is a workaround to pass and control window stuff from the game states
+        self.window = self
+
         self.state = State.Menu
-        self.level = Menu()
-        
+        self.level = Menu(self.window)
+
         self.levels = {State.Menu: self.level}
-        
+
         # If you have sprite lists, you should create them here,
         # and set them to None
 

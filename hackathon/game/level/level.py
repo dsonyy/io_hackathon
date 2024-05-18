@@ -3,11 +3,13 @@ from abc import ABC, abstractmethod
 
 from ..player.player import Player
 
+
 class State(ABC):
     '''
     An individual level's state representation.
     Extend this as an enum to represent and handle level's logic.
     '''
+
 
 class Level(ABC):
     '''
