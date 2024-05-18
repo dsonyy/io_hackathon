@@ -20,7 +20,15 @@ Prowadzący przedmiotów zlecą ci rozmaite zadania. Sposób w jaki je wykonasz 
 
 ## Tutorial
 
-## Instalacja
+
+
+## Koncepcje
+
+<img src="./docs/idea_world.jpg" width=500>
+
+<img src="./docs/idea_map.jpg" width=300>
+
+## Środowisko deweloperskie
 
 1. Python version: `3.10`,
 2. Initializing virtual Python environment:
