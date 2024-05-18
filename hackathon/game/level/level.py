@@ -37,11 +37,11 @@ class Level(ABC):
         pass
 
     @abstractmethod
-    def on_key_pressed(self, key: int, modifiers: int) -> bool:
+    def on_key_press(self, key: int, modifiers: int) -> bool:
         pass
 
     @abstractmethod
-    def on_key_released(self, key: int, modifiers: int) -> bool:
+    def on_key_release(self, key: int, modifiers: int) -> bool:
         pass
 
     @abstractmethod

@@ -19,6 +19,10 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 SCREEN_TITLE = "Starting Template"
 
+LEVELS: dict[State, type[Level]] = {
+    State.Menu: Menu,
+    # State.WorldMap: cośtam
+}
 
 class MyGame(arcade.Window):
     """
@@ -29,8 +33,10 @@ class MyGame(arcade.Window):
     with your own code. Don't leave 'pass' in this program.
     """
 
-    state: State
-    levels: list[Level]
+    state: State  # game state, corresponds to level
+    level: Level  # Level control object
+
+    levels: dict[State, Level]
 
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
@@ -38,13 +44,30 @@ class MyGame(arcade.Window):
         arcade.set_background_color(arcade.color.AMAZON)
 
         self.state = State.Menu
+        self.level = Menu()
+        
+        self.levels = {State.Menu: self.level}
+        
         # If you have sprite lists, you should create them here,
         # and set them to None
+
+    def switch_to_level(self, state: State) -> None:
+        if state not in self.levels:
+            self.levels[state] = level = LEVELS[state]()
+
+        self.state = state
+        self.level = level
 
     def setup(self):
         """ Set up the game variables. Call to re-start the game. """
         # Create your sprites and sprite lists here
-        pass
+
+        # Set starting point to menu
+        self.state = self.levels[State.Menu]
+
+        # Reset all loaded levels
+        for level in self.levels.values():
+            level.setup()
 
     def on_draw(self):
         """
@@ -54,6 +77,7 @@ class MyGame(arcade.Window):
         # This command should happen before we start drawing. It will clear
         # the screen to the background color, and erase what we drew last frame.
         self.clear()
+        self.level.draw()
 
         # Call draw() on all your sprite lists below
 
@@ -63,7 +87,7 @@ class MyGame(arcade.Window):
         Normally, you'll call update() on the sprite lists that
         need it.
         """
-        pass
+        self.level.on_update(delta_time)
 
     def on_key_press(self, key: int, key_modifiers: int):
         """
@@ -72,31 +96,31 @@ class MyGame(arcade.Window):
         For a full list of keys, see:
         https://api.arcade.academy/en/latest/arcade.key.html
         """
-        pass
+        self.level.on_key_press(key, key_modifiers)
 
     def on_key_release(self, key: int, key_modifiers: int):
         """
         Called whenever the user lets off a previously pressed key.
         """
-        pass
+        self.level.on_key_release(key, key_modifiers)
 
     def on_mouse_motion(self, x: int, y: int, delta_x: int, delta_y: int):
         """
         Called whenever the mouse moves.
         """
-        pass
+        self.level.on_mouse_motion(x, y, delta_x, delta_y)
 
     def on_mouse_press(self, x: int, y: int, button: int, key_modifiers: int):
         """
         Called when the user presses a mouse button.
         """
-        pass
+        self.level.on_mouse_press(x, y, button, key_modifiers)
 
     def on_mouse_release(self, x: int, y: int, button: int, key_modifiers: int):
         """
         Called when a user releases a mouse button.
         """
-        pass
+        self.level.on_mouse_release(x, y, button, key_modifiers)
 
 
 def main():
