@@ -13,6 +13,7 @@ from .game import State
 from .game.level import Level
 from .game.player import Player
 from .game.level.menu import Menu
+from .game.level.world import World
 
 
 SCREEN_WIDTH = 800
@@ -21,7 +22,7 @@ SCREEN_TITLE = "Starting Template"
 
 LEVELS: dict[State, type[Level]] = {
     State.Menu: Menu,
-    # State.WorldMap: cośtam
+    State.World: World
 }
 
 class MyGame(arcade.Window):
@@ -42,18 +43,16 @@ class MyGame(arcade.Window):
         super().__init__(width, height, title)
 
         arcade.set_background_color(arcade.color.AMAZON)
-
-        self.state = State.Menu
-        self.level = Menu()
         
-        self.levels = {State.Menu: self.level}
+        self.levels = dict()
         
         # If you have sprite lists, you should create them here,
         # and set them to None
 
     def switch_to_level(self, state: State) -> None:
         if state not in self.levels:
-            self.levels[state] = level = LEVELS[state]()
+            level = LEVELS[state](self)
+            self.levels[state] = level
 
         self.state = state
         self.level = level
@@ -62,8 +61,7 @@ class MyGame(arcade.Window):
         """ Set up the game variables. Call to re-start the game. """
         # Create your sprites and sprite lists here
 
-        # Set starting point to menu
-        self.state = self.levels[State.Menu]
+        self.switch_to_level(State.World)
 
         # Reset all loaded levels
         for level in self.levels.values():
