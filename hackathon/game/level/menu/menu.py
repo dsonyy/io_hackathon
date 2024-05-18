@@ -1,4 +1,5 @@
-from game.level import Level
+from ..level import Level
+
 
 class Menu(Level):
     pass

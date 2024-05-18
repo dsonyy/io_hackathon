@@ -1,1 +1,1 @@
-from game.level.level import Level, State
+from .level import Level, State
