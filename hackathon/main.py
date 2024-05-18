@@ -9,6 +9,11 @@ python -m arcade.examples.starting_template
 """
 import arcade
 
+from game import State
+from game.level import Level
+from game.player import Player
+from game.level.menu import Menu
+
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -24,11 +29,15 @@ class MyGame(arcade.Window):
     with your own code. Don't leave 'pass' in this program.
     """
 
+    state: State
+    levels: list[Level]
+
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
 
         arcade.set_background_color(arcade.color.AMAZON)
 
+        self.state = State.Menu
         # If you have sprite lists, you should create them here,
         # and set them to None
 
@@ -48,7 +57,7 @@ class MyGame(arcade.Window):
 
         # Call draw() on all your sprite lists below
 
-    def on_update(self, delta_time):
+    def on_update(self, delta_time: int):
         """
         All the logic to move, and the game logic goes here.
         Normally, you'll call update() on the sprite lists that
@@ -56,7 +65,7 @@ class MyGame(arcade.Window):
         """
         pass
 
-    def on_key_press(self, key, key_modifiers):
+    def on_key_press(self, key: int, key_modifiers: int):
         """
         Called whenever a key on the keyboard is pressed.
 
@@ -65,25 +74,25 @@ class MyGame(arcade.Window):
         """
         pass
 
-    def on_key_release(self, key, key_modifiers):
+    def on_key_release(self, key: int, key_modifiers: int):
         """
         Called whenever the user lets off a previously pressed key.
         """
         pass
 
-    def on_mouse_motion(self, x, y, delta_x, delta_y):
+    def on_mouse_motion(self, x: int, y: int, delta_x: int, delta_y: int):
         """
         Called whenever the mouse moves.
         """
         pass
 
-    def on_mouse_press(self, x, y, button, key_modifiers):
+    def on_mouse_press(self, x: int, y: int, button: int, key_modifiers: int):
         """
         Called when the user presses a mouse button.
         """
         pass
 
-    def on_mouse_release(self, x, y, button, key_modifiers):
+    def on_mouse_release(self, x: int, y: int, button: int, key_modifiers: int):
         """
         Called when a user releases a mouse button.
         """
