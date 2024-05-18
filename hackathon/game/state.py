@@ -9,7 +9,7 @@ class State(IntEnum):
     '''
 
     Menu = auto()
-    WorldMap = auto()
+    World = auto()
     MinigameMath = auto()
     MinigameAlgo = auto()
     MinigameElectro = auto()
