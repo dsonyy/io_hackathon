@@ -1,0 +1,9 @@
+arcade==2.6.17
+attrs==23.2.0
+cffi==1.16.0
+Pillow==9.3.0
+pycparser==2.22
+pyglet==2.0.dev23
+pymunk==6.4.0
+pytiled-parser==2.2.0
+typing_extensions==4.11.0
