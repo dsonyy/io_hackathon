@@ -1,1 +1,1 @@
-from game.level.menu.menu import Menu
+from .menu import Menu

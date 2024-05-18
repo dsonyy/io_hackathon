@@ -9,10 +9,10 @@ python -m arcade.examples.starting_template
 """
 import arcade
 
-from game import State
-from game.level import Level
-from game.player import Player
-from game.level.menu import Menu
+from .game import State
+from .game.level import Level
+from .game.player import Player
+from .game.level.menu import Menu
 
 
 SCREEN_WIDTH = 800
