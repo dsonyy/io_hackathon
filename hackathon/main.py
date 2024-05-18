@@ -63,7 +63,7 @@ class MyGame(arcade.Window):
         """ Set up the game variables. Call to re-start the game. """
         # Create your sprites and sprite lists here
 
-        self.switch_to_level(State.World)
+        self.switch_to_level(State.Menu)
 
         # Reset all loaded levels
         for level in self.levels.values():

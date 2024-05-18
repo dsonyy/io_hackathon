@@ -117,7 +117,7 @@ class Menu(Level):
 
     def on_mouse_press(self, x: int, y: int, button: int, key_modifiers: int) -> None:
         if self._is_in_bounds(x, y, *self._get_text_bounds(self.text_start)):
-            self.window.switch_to_level(State.WorldMap)
+            self.window.switch_to_level(State.World)
 
     def on_mouse_release(self, x: int, y: int, button: int, key_modifiers: int) -> None:
         pass
