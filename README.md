@@ -2,6 +2,8 @@
 
 ## O naszej grze
 
+> 🖥️ AGH promotional game hackathon.
+
 WIrtualne Studia są immersywną grą pozwalającą doświadczyć studiów na Wydziale Informatyki. Zagłębij się w świat studenta informatyki: uczęszczaj na zajęcia, rozwiązuj zadania, zdobywaj punkty ECTS i ukończ studia. :robot:
 
 ## Świat D17
@@ -19,6 +21,16 @@ Prowadzący przedmiotów zlecą ci rozmaite zadania. Sposób w jaki je wykonasz 
 ## Tutorial
 
 ## Instalacja
+
+1. Python version: `3.10`,
+2. Initializing virtual Python environment:
+    ```
+    $ virtualenv env
+    $ source ./env/bin/activate
+    ``` 
+3. Installing devlopment dependencies:
+   ```
+   $ pip install -r requirements.txt
 
 ## Autorzy
 
