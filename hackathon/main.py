@@ -16,8 +16,8 @@ from .game.level.menu import Menu
 from .game.level.world import World
 
 
-SCREEN_WIDTH = 1280
-SCREEN_HEIGHT = 1024
+SCREEN_WIDTH = 1920
+SCREEN_HEIGHT = 1080
 SCREEN_TITLE = "Starting Template"
 
 LEVELS: dict[State, type[Level]] = {
