@@ -46,10 +46,10 @@ class MyGame(arcade.Window):
     plot: dict[Literal['ects'], int]
 
     def __init__(self, width, height, title):
-        super().__init__(width, height, title, fullscreen=True)
+        super().__init__(width, height, title, fullscreen=False)
 
         arcade.set_background_color(arcade.color.ALMOND)
-        
+
         self.window = self
         self.levels = dict()
 

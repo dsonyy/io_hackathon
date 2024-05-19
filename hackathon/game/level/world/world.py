@@ -21,6 +21,7 @@ HITBOX_COLLISION_COLOR: int = 0
 BORDER_OFFSET = 16
 CELL_SIZE = 128
 
+
 class Active(IntEnum):
     MathClassroom = auto()
     ElectronicsClassroom = auto()
@@ -32,6 +33,7 @@ ACTIVES: list[tuple[tuple[int, int], Any]] = [
     ((200, 300), Active.ElectronicsClassroom),
     ((300, 400), Active.Laptop)
 ]
+
 
 class State(IntEnum):
     Idle = auto()
@@ -54,8 +56,8 @@ class Player(BasePlayer):
         '''
         x = int(self.sprite.center_x)
         y = int(self.sprite.center_y)
-        w = int(self.sprite.width) // 2
-        h = int(self.sprite.height) // 2
+        w = int(self.sprite.width) // 4
+        h = int(self.sprite.height) // 3
 
         return (
             (x - w, y + h),
@@ -83,9 +85,9 @@ class Player(BasePlayer):
 
 class World(Level):
     window: arcade.Window
-    
+
     background: arcade.SpriteList
-    
+
     hitboxes: list[pil.Image.Image]
     chunk: int = 0
 
@@ -109,10 +111,12 @@ class World(Level):
     PLAYER_SPEED: int = 5
     PLAYER_START: tuple[int, int] = 0, 0
 
+    keys: set[int] = set()
+
     def __init__(self, window: arcade.Window) -> None:
         super().__init__()
         self.window = window
-        
+
         self.state = State.Idle
 
         self.player_collisions = []
@@ -147,7 +151,7 @@ class World(Level):
 
     def __setup_player(self) -> None:
         self.player = Player(*self.PLAYER_START)
-    
+
     def __setup_actives(self) -> None:
         for position, type in ACTIVES:
             active = arcade.Sprite(
@@ -180,7 +184,7 @@ class World(Level):
             self.player.sprite,
             self.actives
         )
-    
+
     def draw(self) -> None:
         self.player_camera.use()
 
@@ -188,7 +192,7 @@ class World(Level):
         self.sprites.draw()
         self.actives.draw()
         self.player.draw()
-        
+
         self.overlay_camera.use()
         self.__draw_overlay()
 
@@ -207,7 +211,7 @@ class World(Level):
     @property
     def finished(self) -> bool:
         return False
-    
+
     def interaction(self) -> None:
         active = self.player_actives_collision
 
@@ -236,6 +240,18 @@ class World(Level):
         self.scroll_to_player()
         self.player.update(delta_time)
         self.update_collisions()
+
+        # player movement
+        self.player.stop()
+        a, b, c, d = self.player_collisions
+        if arcade.key.W in self.keys and not a and not b:
+            self.player.move_y(self.PLAYER_SPEED)
+        if arcade.key.S in self.keys and not c and not d:
+            self.player.move_y(-self.PLAYER_SPEED)
+        if arcade.key.A in self.keys and not a and not c:
+            self.player.move_x(-self.PLAYER_SPEED)
+        if arcade.key.D in self.keys and not b and not d:
+            self.player.move_x(self.PLAYER_SPEED)
 
     def on_resize(self, width: float, height: float) -> None:
         self.player_camera.resize(int(width), int(height))
@@ -284,20 +300,22 @@ class World(Level):
 
             case [sprite, *_]:
                 self.player_actives_collision = sprite
-    
+
     def on_key_press(self, key: int, modifiers: int) -> bool:
-        match (key, self.player_collisions):
-            case (arcade.key.W, (False, False, _, _)):
-                self.player.move_y(self.PLAYER_SPEED)
+        self.keys.add(key)
 
-            case (arcade.key.S, (_, _, False, False)):
-                self.player.move_y(-self.PLAYER_SPEED)
+        # match (key, self.player_collisions):
+        #     case (arcade.key.W, (False, False, _, _)):
+        #         self.player.move_y(self.PLAYER_SPEED)
 
-            case (arcade.key.A, (False, _, False, _)):
-                self.player.move_x(-self.PLAYER_SPEED)
+        #     case (arcade.key.S, (_, _, False, False)):
+        #         self.player.move_y(-self.PLAYER_SPEED)
 
-            case (arcade.key.D, (_, False, _, False)):
-                self.player.move_x(self.PLAYER_SPEED)
+        #     case (arcade.key.A, (False, _, False, _)):
+        #         self.player.move_x(-self.PLAYER_SPEED)
+
+        #     case (arcade.key.D, (_, False, _, False)):
+        #         self.player.move_x(self.PLAYER_SPEED)
 
         match (key, self.player_actives_collision):
             case (_, None):
@@ -305,27 +323,28 @@ class World(Level):
 
             case (arcade.key.E, _):
                 self.interaction()
-    
+
     def on_key_release(self, key: int, modifiers: int) -> bool:
-        match key:
-            case arcade.key.W:
-                self.player.stop()
+        self.keys.remove(key)
 
-            case arcade.key.S:
-                self.player.stop()
+        # match key:
+        #     case arcade.key.W:
+        #         self.player.stop()
 
-            case arcade.key.A:
-                self.player.stop()
+        #     case arcade.key.S:
+        #         self.player.stop()
 
-            case arcade.key.D:
-                self.player.stop()
-    
+        #     case arcade.key.A:
+        #         self.player.stop()
+
+        #     case arcade.key.D:
+        #         self.player.stop()
+
     def on_mouse_motion(self, x: int, y: int, delta_x: int, delta_y: int):
         pass
-    
+
     def on_mouse_press(self, x: int, y: int, button: int, key_modifiers: int):
         pass
-    
+
     def on_mouse_release(self, x: int, y: int, button: int, key_modifiers: int):
         pass
-    
