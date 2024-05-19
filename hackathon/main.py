@@ -7,6 +7,7 @@ template.
 If Python and Arcade are installed, this example can be run from the command line with:
 python -m arcade.examples.starting_template
 """
+from typing import Literal
 import arcade
 
 from hackathon.game.level.minigame.mathgame.mathgame import MathLevel
@@ -16,6 +17,7 @@ from .game.player import Player
 from .game.level.menu import Menu
 from .game.level.world import World
 from .game.level.electronics import Electronics
+from .game.level.menu.endscreen import EndScreen
 
 
 SCREEN_WIDTH = 1920
@@ -26,7 +28,8 @@ LEVELS: dict[State, type[Level]] = {
     State.Menu: Menu,
     State.World: World,
     State.MinigameElectro: Electronics,
-    State.MinigameMath: MathLevel
+    State.MinigameMath: MathLevel,
+    State.EndScreen: EndScreen
 }
 
 
@@ -44,26 +47,41 @@ class MyGame(arcade.Window):
 
     levels: dict[State, Level]
 
-    def __init__(self, width, height, title):
-        super().__init__(width, height, title, fullscreen=True)
+    plot: dict[Literal['ects'], int]
+    classes_completed: dict[State, bool]
 
-        arcade.set_background_color(arcade.color.AMAZON)
-        
-        # TODO: this is a workaround to pass and control window stuff from the game states
+    def __init__(self, width, height, title):
+        super().__init__(width, height, title, fullscreen=False)
+
+        arcade.set_background_color(arcade.color.ALMOND)
+
         self.window = self
-        
         self.levels = dict()
-        # If you have sprite lists, you should create them here,
-        # and set them to None
+
+        self.plot = {
+            'ects': 0
+        }
+
+        self.classes_completed = {
+            State.MinigameAlgo: False,
+            State.MinigameElectro: False,
+            State.MinigameMath: False
+        }
+
+    def add_ects(self) -> None:
+        self.plot['ects'] += 1
 
     def switch_to_level(self, state: State) -> None:
-        if state not in self.levels:
+        level = self.levels.get(state, None)
+
+        if level is None:
             level = LEVELS[state](self)
             level.setup()
-            self.levels[state] = level
 
         self.state = state
         self.level = level
+
+        self.update(1)
 
     def setup(self):
         """ Set up the game variables. Call to re-start the game. """
@@ -74,6 +92,10 @@ class MyGame(arcade.Window):
         # Reset all loaded levels
         for level in self.levels.values():
             level.setup()
+
+    def on_resize(self, width: float, height: float) -> None:
+        if hasattr(self.level, 'on_resize'):
+            self.level.on_resize(width, height)
 
     def on_draw(self):
         """

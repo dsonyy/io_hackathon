@@ -13,3 +13,4 @@ class State(IntEnum):
     MinigameMath = auto()
     MinigameAlgo = auto()
     MinigameElectro = auto()
+    EndScreen = auto()

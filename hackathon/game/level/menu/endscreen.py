@@ -6,7 +6,7 @@ import arcade
 import pathlib
 
 
-class Menu(Level):
+class EndScreen(Level):
     def __init__(self, window: arcade.Window):
         self.window = window
 
@@ -14,6 +14,9 @@ class Menu(Level):
         self.path_assets = pathlib.Path() / "hackathon" / "assets"
 
         self.width, self.height = self.window.get_size()
+
+        self.text = ''
+        self.names = []
 
         # load sprites
 
@@ -50,7 +53,7 @@ class Menu(Level):
             y=int(0.15 * self.height),
         )
         self.text_start = self._build_text(
-            text="START",
+            text="RESTART",
             x=self.width // 2,
             y=int(0.40 * self.height),
         )
@@ -59,13 +62,18 @@ class Menu(Level):
             x=self.width // 2,
             y=int(0.35 * self.height),
         )
-
-        # sprites
-        self.sprite_logo = arcade.Sprite(
-            filename=str(self.path_assets / "logo.png"),
-            scale=0.75
+        self.text_studia = self._build_text(
+            text="Brawo, ukończyłeś studia!",
+            x=self.width // 2,
+            y=int(0.75 * self.height),
+            size=72,
         )
-        self.sprite_logo.position = self.width // 2, 0.65 * self.height
+        self.text_button = self._build_text(
+            text="Dopisz się do listy studentów",
+            x=self.width // 2,
+            y=int(0.60 * self.height),
+        )
+        # arcade.draw_rectangle_outline(self.width//2, int(0.55 * self.height), self.width//8, int(self.height * 0.1), arcade.color.WHITE)
 
         # cursor
         self.cursor_normal = arcade.Sprite(
@@ -85,10 +93,29 @@ class Menu(Level):
         self.text_copy.draw()
         self.text_start.draw()
         self.text_exit.draw()
+        self.text_studia.draw()
+        self.text_button.draw()
 
-        self.sprite_logo.draw()
+        # self.sprite_logo.draw()
+        arcade.draw_rectangle_filled(self.width // 2, int(0.50 * self.height), self.width // 4, int(self.height * 0.05),
+                                     arcade.color.VIOLET)
 
         self.cursor.draw()
+
+        self.text_display = self._build_text(
+            text=self.text,
+            x=self.width // 2,
+            y=int(0.50 * self.height),
+        )
+        self.text_display.draw()
+
+        for i, name in enumerate(self.names):
+            self.text_lista = self._build_text(
+                text=name,
+                x=self.width // 8,
+                y=int((0.70 - 0.05 * (i + 1)) * self.height),
+            )
+            self.text_lista.draw()
 
     @property
     def finished(self) -> bool:
@@ -98,6 +125,8 @@ class Menu(Level):
         return False
 
     def on_key_press(self, key: int, modifiers: int) -> bool:
+        if chr(key).isalpha():
+            self.text += chr(key)
         return False
 
     def on_key_release(self, key: int, modifiers: int) -> bool:
@@ -107,6 +136,7 @@ class Menu(Level):
         is_hovering = False
         is_hovering |= self._update_text_option_hover(x, y, self.text_start)
         is_hovering |= self._update_text_option_hover(x, y, self.text_exit)
+        is_hovering |= self._update_text_option_hover(x, y, self.text_button)
 
         if is_hovering:
             self.cursor = self.cursor_pointer
@@ -118,6 +148,9 @@ class Menu(Level):
     def on_mouse_press(self, x: int, y: int, button: int, key_modifiers: int) -> None:
         if self._is_in_bounds(x, y, *self._get_text_bounds(self.text_start)):
             self.window.switch_to_level(State.World)
+        if self._is_in_bounds(x, y, *self._get_text_bounds(self.text_button)):
+            self.names.append(self.text)
+            self.text = ''
         if self._is_in_bounds(x, y, *self._get_text_bounds(self.text_exit)):
             arcade.close_window()
 
