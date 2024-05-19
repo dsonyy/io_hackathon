@@ -626,7 +626,7 @@ class Electronics(Level):
 
     def draw_tutorial(self):
         if self.level < 1:
-            photo = arcade.Sprite(f"hackathon/assets/cyfrowka/tutorial/wyklad{self.level+4}.png")
+            photo = arcade.Sprite(f"hackathon/assets/cyfrowka/tutorial/wyklad{self.level+4}.png", 0.75)
             photo.center_x = self.window.width // 2
             photo.center_y = self.window.height // 2
             self.all_sprites.append(photo)
