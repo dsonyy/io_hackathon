@@ -34,9 +34,10 @@ class Active(IntEnum):
     OfertyPracy = auto()
     Wydarzenia = auto()
     Rekrutacja = auto()
-    Rzezba = auto()
+    # Rzezba = auto()
     RemontSchody = auto()
     RemontShannon = auto()
+    Rzezba2 = auto()
 
 
 ACTIVES: list[tuple[tuple[int, int], Any]] = [
@@ -45,9 +46,10 @@ ACTIVES: list[tuple[tuple[int, int], Any]] = [
     ((-600, 0), Active.OfertyPracy),
     ((700, -60), Active.Wydarzenia),
     ((1040, -640), Active.Rekrutacja),
-    ((650, -960), Active.Rzezba),
+    # ((800, -960), Active.Rzezba),
     ((900, 280), Active.RemontSchody),
-    ((-3900, 400), Active.RemontShannon)
+    ((-3900, 400), Active.RemontShannon),
+    ((800, -960), Active.Rzezba2),
 ]
 
 
@@ -220,7 +222,7 @@ class World(Level):
     def __draw_messages(self) -> None:
         for lines, x, y in self.messages:
             width = len(max(lines, key=len)) * 17
-            height = 30 * len(lines)
+            height = 100 * len(lines)
 
             arcade.draw_rectangle_filled(
                 x,
@@ -293,10 +295,10 @@ class World(Level):
                     "Rekrutacja do kół naukowych AGH trwa! Dołącz do nas i rozpocznij swoją przygodę z inynierią!",
                 ], 1040, -630)
 
-            case Active.Rzezba:
+            case Active.Rzezba2:
                 self.__display_message([
                     "Rzeźba na wydziale WI. Zapraszamy do obejrzenia!",
-                ], 650, 960)
+                ], 800, -960)
 
             case Active.RemontSchody:
                 self.__display_message([
@@ -434,7 +436,7 @@ class World(Level):
             self.keys.remove(key)
         except Exception as ignore:
             pass
-        
+
         # match key:
         #     case arcade.key.W:
         #         self.player.stop()
