@@ -9,7 +9,7 @@ python -m arcade.examples.starting_template
 """
 import arcade
 
-from hackathon.game.level.minigame.mathgame.math_logic import MathLevel
+from hackathon.game.level.minigame.mathgame.mathgame import MathLevel
 from .game import State
 from .game.level import Level
 from .game.player import Player
