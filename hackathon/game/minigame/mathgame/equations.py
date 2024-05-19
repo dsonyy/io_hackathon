@@ -1,4 +1,4 @@
-from basic_operations import BasicOperation
+from .basic_operations import BasicOperation
 
 class EquationSide:
         def __init__(self) -> None:
