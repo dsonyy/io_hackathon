@@ -1,11 +1,16 @@
 from enum import IntEnum, auto
+from typing import Any, Optional
+
 import arcade
 import arcade.key
 
+import arcade.key
 from pyglet import math as pyglet_math
 
 from ...player.player import Player as BasePlayer
 from ..level import Level
+
+from ....game.state import State as GameState
 
 import PIL as pil
 
@@ -15,6 +20,17 @@ HITBOX_COLLISION_COLOR: int = 0
 BORDER_OFFSET = 16
 CELL_SIZE = 128
 
+class Active(IntEnum):
+    MathClassroom = auto()
+    ElectronicsClassroom = auto()
+    PaperSheet = auto()
+    Laptop = auto()
+
+
+ACTIVES: list[tuple[tuple[int, int], Any]] = [
+    ((200, 300), Active.ElectronicsClassroom),
+    ((300, 400), Active.Laptop)
+]
 
 class State(IntEnum):
     Idle = auto()
@@ -82,10 +98,12 @@ class World(Level):
 
     player_bbox: tuple[tuple[int, int], ...]
     player_collisions: tuple[bool, ...]
+    player_actives_collision: Optional[arcade.Sprite]
 
     physics: arcade.PhysicsEngineSimple
 
-    camera: arcade.Camera
+    player_camera: arcade.Camera
+    overlay_camera: arcade.Camera
 
     PLAYER_SPEED: int = 5
     PLAYER_START: tuple[int, int] = 0, 0
@@ -99,13 +117,19 @@ class World(Level):
         self.player_collisions = []
 
         self.actives = arcade.SpriteList()
+        self.player_actives_collision = None
 
         self.background = arcade.SpriteList()
         self.sprites = arcade.SpriteList()
 
         self.obstacles = arcade.SpriteList()
 
-        self.camera = arcade.Camera(
+        self.player_camera = arcade.Camera(
+            window.width,
+            window.height
+        )
+
+        self.overlay_camera = arcade.Camera(
             window.width,
             window.height
         )
@@ -113,16 +137,28 @@ class World(Level):
     def setup(self) -> None:
         self.__setup_obstacles()
         self.__setup_player()
-        self.__setup_engine()
-
         self.__setup_background()
         self.__setup_sprites()
+        self.__setup_actives()
 
+        self.__setup_engine()
         self.scroll_to_player()
 
     def __setup_player(self) -> None:
         self.player = Player(*self.PLAYER_START)
     
+    def __setup_actives(self) -> None:
+        for position, type in ACTIVES:
+            active = arcade.Sprite(
+                'hackathon/assets/world/consumable.png',
+                center_x=position[0],
+                center_y=position[1]
+            )
+
+            active.type = type
+
+            self.actives.append(active)
+
     def __setup_background(self) -> None:
         self.background.append(arcade.Sprite(
             'hackathon/assets/world/map0/ground.png'
@@ -141,19 +177,55 @@ class World(Level):
     def __setup_engine(self) -> None:
         self.physics = arcade.PhysicsEngineSimple(
             self.player.sprite,
-            self.obstacles
+            self.actives
         )
     
     def draw(self) -> None:
-        self.camera.use()
+        self.player_camera.use()
 
         self.background.draw()
         self.sprites.draw()
+        self.actives.draw()
         self.player.draw()
-    
+        
+        self.overlay_camera.use()
+        self.__draw_overlay()
+
+    def __draw_overlay(self) -> None:
+        arcade.draw_rectangle_filled(
+            self.window.width // 2,
+            20,
+            self.window.width,
+            40,
+            arcade.color.ALMOND
+        )
+
+        text = f"ECTS: {self.window.plot['ects']}"
+        arcade.draw_text(text, 10, 10, arcade.color.BLACK_BEAN, 20)
+
     @property
     def finished(self) -> bool:
         return False
+    
+    def interaction(self) -> None:
+        active = self.player_actives_collision
+
+        match active.type:
+            case Active.PaperSheet:
+                pass
+
+            case Active.Laptop:
+                pass
+
+            case Active.MathClassroom:
+                self.window.switch_to_level(GameState.MinigameMath)
+                self.player_camera.move(pyglet_math.Vec2(0, 0))
+                self.player_camera.use()
+
+            case Active.ElectronicsClassroom:
+                self.window.switch_to_level(GameState.MinigameElectro)
+                self.player_camera.move(pyglet_math.Vec2(0, 0))
+                self.player_camera.use()
 
     def on_update(self, delta_time: int) -> bool:
         self.scroll_to_player()
@@ -161,7 +233,7 @@ class World(Level):
         self.update_collisions()
 
     def on_resize(self, width: float, height: float) -> None:
-        self.camera.resize(int(width), int(height))
+        self.player_camera.resize(int(width), int(height))
 
     def scroll_to_player(self) -> None:
         position = pyglet_math.Vec2(
@@ -169,7 +241,7 @@ class World(Level):
             self.player.sprite.center_y - self.window.height / 2
         )
 
-        self.camera.move_to(position, 0.5)
+        self.player_camera.move_to(position, 0.5)
 
     def update_collisions(self) -> None:
         self.player_bbox = self.player.bounding_box()
@@ -180,7 +252,7 @@ class World(Level):
         y_offset = int(height / 2)
 
         corner_collisions = [
-            hitbox.getpixel((corner[0] + x_offset, height - corner[1] - y_offset))  # TODO shift according to chunk position
+            hitbox.getpixel((corner[0] + x_offset, height - corner[1] - y_offset))
             for corner in self.player_bbox
         ]
 
@@ -194,6 +266,16 @@ class World(Level):
 
         if any(self.player_collisions):
             self.player.stop()
+
+        match arcade.check_for_collision_with_list(
+            self.player.sprite,
+            self.actives
+        ):
+            case []:
+                self.player_actives_collision = None
+
+            case [sprite, *_]:
+                self.player_actives_collision = sprite
     
     def on_key_press(self, key: int, modifiers: int) -> bool:
         match (key, self.player_collisions):
@@ -208,6 +290,13 @@ class World(Level):
 
             case (arcade.key.D, (_, False, _, False)):
                 self.player.move_x(self.PLAYER_SPEED)
+
+        match (key, self.player_actives_collision):
+            case (_, None):
+                pass
+
+            case (arcade.key.E, _):
+                self.interaction()
     
     def on_key_release(self, key: int, modifiers: int) -> bool:
         match key:
