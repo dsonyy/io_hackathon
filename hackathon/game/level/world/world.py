@@ -30,11 +30,24 @@ class Active(IntEnum):
     ElectronicsClassroom = auto()
     PaperSheet = auto()
     Laptop = auto()
+    ###
+    OfertyPracy = auto()
+    Wydarzenia = auto()
+    Rekrutacja = auto()
+    Rzezba = auto()
+    RemontSchody = auto()
+    RemontShannon = auto()
 
 
 ACTIVES: list[tuple[tuple[int, int], Any]] = [
     ((200, 300), Active.ElectronicsClassroom),
-    ((300, 100), Active.Laptop)
+    ((300, 100), Active.Laptop),
+    ((-600, 0), Active.OfertyPracy),
+    ((700, -60), Active.Wydarzenia),
+    ((1040, -640), Active.Rekrutacja),
+    ((650, -960), Active.Rzezba),
+    ((900, 280), Active.RemontSchody),
+    ((-3900, 400), Active.RemontShannon)
 ]
 
 
@@ -200,7 +213,7 @@ class World(Level):
         self.actives.draw()
         self.player.draw()
         self.__draw_messages()
-        
+
         self.overlay_camera.use()
         self.__draw_overlay()
 
@@ -263,6 +276,37 @@ class World(Level):
             case Active.ElectronicsClassroom:
                 self.window.switch_to_level(GameState.MinigameElectro)
                 self.prepare_jump()
+
+            case Active.OfertyPracy:
+                self.__display_message([
+                    "Nowe oferty pracy dla programistów 99 999K są dostępne!",
+                ], -600, 0)
+
+            case Active.Wydarzenia:
+                self.__display_message([
+                    "Wydarzenia, hackathony i targi branżowe dostępne w Twojej okolicy!",
+
+                ], 700, -60)
+
+            case Active.Rekrutacja:
+                self.__display_message([
+                    "Rekrutacja do kół naukowych AGH trwa! Dołącz do nas i rozpocznij swoją przygodę z inynierią!",
+                ], 1040, -630)
+
+            case Active.Rzezba:
+                self.__display_message([
+                    "Rzeźba na wydziale WI. Zapraszamy do obejrzenia!",
+                ], 650, 960)
+
+            case Active.RemontSchody:
+                self.__display_message([
+                    "Uwaga! Trwają prace remontowe na schodach. Proszę nie wchodzić ",
+                ], 880, 280)
+
+            case Active.RemontShannon:
+                self.__display_message([
+                    "Uwaga! Trwają prace remontowe w części Shannon. Proszę nie wchodzić.",
+                ], -3900, 500)
 
     def __display_message(self, text: list[str], x: int, y: int) -> None:
         self.messages.appendleft((text, x, y))
