@@ -85,6 +85,11 @@ Na planszy gry będzie można znaleźć wiele ciekawostek. Poniżej są nasze po
 3. Installing devlopment dependencies:
    ```
    $ pip install -r requirements.txt
+   ```
+4. Uruchomienie
+   ```
+   $ python3 -m hackathon
+   ```
 
 ## Autorzy
 
