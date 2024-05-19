@@ -555,6 +555,7 @@ class Electronics(Level):
         if self.level == 3:
             self.manager.clear()
             self.window.add_ects()
+            self.window.classes_completed[State.MinigameElectro] = True
             self.window.switch_to_level(State.World)
 
     def signs_draw(self):

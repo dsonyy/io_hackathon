@@ -300,7 +300,7 @@ class World(Level):
             pass
 
         if classes[GameState.MinigameElectro]:
-            pass
+            self.window.switch_to_level(GameState.EndScreen)
 
         # player movement
         self.player.stop()
@@ -386,8 +386,11 @@ class World(Level):
                 self.interaction()
 
     def on_key_release(self, key: int, modifiers: int) -> bool:
-        self.keys.remove(key)
-
+        try:
+            self.keys.remove(key)
+        except Exception as ignore:
+            pass
+        
         # match key:
         #     case arcade.key.W:
         #         self.player.stop()
