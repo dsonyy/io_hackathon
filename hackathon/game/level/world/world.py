@@ -1,5 +1,6 @@
 from enum import IntEnum, auto
 from typing import Any, Optional
+from collections import deque
 
 import arcade
 import arcade.color
@@ -16,6 +17,8 @@ from ....game.state import State as GameState
 import PIL as pil
 
 
+MESSAGE_DISPLAY_TIME: int = 3
+
 HITBOX_COLLISION_COLOR: int = 0
 
 BORDER_OFFSET = 16
@@ -31,7 +34,7 @@ class Active(IntEnum):
 
 ACTIVES: list[tuple[tuple[int, int], Any]] = [
     ((200, 300), Active.ElectronicsClassroom),
-    ((300, 400), Active.Laptop)
+    ((300, 100), Active.Laptop)
 ]
 
 
@@ -108,6 +111,8 @@ class World(Level):
     player_camera: arcade.Camera
     overlay_camera: arcade.Camera
 
+    messages: deque[list[tuple[str, int, int]]]
+
     PLAYER_SPEED: int = 5
     PLAYER_START: tuple[int, int] = 0, 0
 
@@ -138,6 +143,8 @@ class World(Level):
             window.width,
             window.height
         )
+
+        self.messages = deque()
 
     def setup(self) -> None:
         self.__setup_obstacles()
@@ -192,9 +199,32 @@ class World(Level):
         self.sprites.draw()
         self.actives.draw()
         self.player.draw()
-
+        self.__draw_messages()
+        
         self.overlay_camera.use()
         self.__draw_overlay()
+
+    def __draw_messages(self) -> None:
+        for lines, x, y in self.messages:
+            width = len(max(lines, key=len)) * 17
+            height = 30 * len(lines)
+
+            arcade.draw_rectangle_filled(
+                x,
+                y,
+                width,
+                height,
+                arcade.color.ALMOND
+            )
+
+            for i, line in enumerate(lines):
+                arcade.draw_text(
+                    line,
+                    x - width // 2,
+                    y + 15 - 21 * i,
+                    arcade.color.BLACK_BEAN,
+                    20
+                )
 
     def __draw_overlay(self) -> None:
         arcade.draw_rectangle_filled(
@@ -220,7 +250,11 @@ class World(Level):
                 pass
 
             case Active.Laptop:
-                pass
+                self.__display_message([
+                    "Praca na studiach polega",
+                    "przede wszystkim na",
+                    "wykonywaniu praktycznych projektów."
+                ], 300, 450)
 
             case Active.MathClassroom:
                 self.window.switch_to_level(GameState.MinigameMath)
@@ -229,6 +263,20 @@ class World(Level):
             case Active.ElectronicsClassroom:
                 self.window.switch_to_level(GameState.MinigameElectro)
                 self.prepare_jump()
+
+    def __display_message(self, text: list[str], x: int, y: int) -> None:
+        self.messages.appendleft((text, x, y))
+
+        def handler(_time: float) -> None:
+            try:
+                self.messages.pop()
+            except Exception as ignore:
+                pass
+
+        arcade.schedule(
+            handler,
+            MESSAGE_DISPLAY_TIME
+        )
 
     def prepare_jump(self) -> None:
         self.player_camera.move(pyglet_math.Vec2(0, 0))
@@ -240,6 +288,19 @@ class World(Level):
         self.scroll_to_player()
         self.player.update(delta_time)
         self.update_collisions()
+        self.__update_plot()
+
+    def __update_plot(self) -> None:
+        classes = self.window.classes_completed
+
+        if classes[GameState.MinigameAlgo]:
+            pass
+
+        if classes[GameState.MinigameMath]:
+            pass
+
+        if classes[GameState.MinigameElectro]:
+            pass
 
         # player movement
         self.player.stop()

@@ -46,6 +46,7 @@ class MyGame(arcade.Window):
     levels: dict[State, Level]
 
     plot: dict[Literal['ects'], int]
+    classes_completed: dict[State, bool]
 
     def __init__(self, width, height, title):
         super().__init__(width, height, title, fullscreen=False)
@@ -57,6 +58,12 @@ class MyGame(arcade.Window):
 
         self.plot = {
             'ects': 0
+        }
+
+        self.classes_completed = {
+            State.MinigameAlgo: False,
+            State.MinigameElectro: False,
+            State.MinigameMath: False
         }
 
     def add_ects(self) -> None:
