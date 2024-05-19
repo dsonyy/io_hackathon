@@ -161,17 +161,17 @@ class World(Level):
 
     def __setup_background(self) -> None:
         self.background.append(arcade.Sprite(
-            'hackathon/assets/world/map0/ground.png'
+            'hackathon/assets/world/map1/ground.png'
         ))
 
     def __setup_obstacles(self) -> None:
         self.hitboxes = [
-            pil.Image.open('hackathon/assets/world/map0/ground.png')
+            pil.Image.open('hackathon/assets/world/map1/ground.png')
         ]
 
     def __setup_sprites(self) -> None:
         self.sprites.append(arcade.Sprite(
-            'hackathon/assets/world/map0/walls.png'
+            'hackathon/assets/world/map1/walls.png'
         ))
 
     def __setup_engine(self) -> None:
@@ -263,6 +263,9 @@ class World(Level):
             ),
             corner_collisions
         ))
+
+        print(corner_collisions)
+        print(self.player_collisions)
 
         if any(self.player_collisions):
             self.player.stop()
