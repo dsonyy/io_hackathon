@@ -2,6 +2,8 @@ from enum import IntEnum, auto
 import arcade
 import arcade.key
 
+from pyglet import math as pyglet_math
+
 from ...player.player import Player as BasePlayer
 from ..level import Level
 
@@ -12,18 +14,6 @@ HITBOX_COLLISION_COLOR: int = 0
 
 BORDER_OFFSET = 16
 CELL_SIZE = 128
-
-MAP = [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1],
-    [1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1],
-    [1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1],
-    [1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-]
 
 
 class State(IntEnum):
@@ -85,17 +75,20 @@ class World(Level):
     sprites: arcade.SpriteList
     obstacles: arcade.SpriteList
 
+    actives: arcade.SpriteList
+
     player: Player
     state: State
 
     player_bbox: tuple[tuple[int, int], ...]
     player_collisions: tuple[bool, ...]
-    player_collides: bool
 
     physics: arcade.PhysicsEngineSimple
 
+    camera: arcade.Camera
+
     PLAYER_SPEED: int = 5
-    PLAYER_START: tuple[int, int] = 600, 600
+    PLAYER_START: tuple[int, int] = 0, 0
 
     def __init__(self, window: arcade.Window) -> None:
         super().__init__()
@@ -104,12 +97,18 @@ class World(Level):
         self.state = State.Idle
 
         self.player_collisions = []
-        self.player_collides = False
+
+        self.actives = arcade.SpriteList()
 
         self.background = arcade.SpriteList()
         self.sprites = arcade.SpriteList()
 
         self.obstacles = arcade.SpriteList()
+
+        self.camera = arcade.Camera(
+            window.width,
+            window.height
+        )
 
     def setup(self) -> None:
         self.__setup_obstacles()
@@ -119,37 +118,25 @@ class World(Level):
         self.__setup_background()
         self.__setup_sprites()
 
+        self.scroll_to_player()
+
     def __setup_player(self) -> None:
         self.player = Player(*self.PLAYER_START)
-        
+    
     def __setup_background(self) -> None:
         self.background.append(arcade.Sprite(
-            'hackathon/assets/world/map.png',
-            center_x=960,
-            center_y=540
+            'hackathon/assets/world/map0/ground.png'
         ))
 
     def __setup_obstacles(self) -> None:
         self.hitboxes = [
-            pil.Image.open('hackathon/assets/world/map_obstacle_h.png')
+            pil.Image.open('hackathon/assets/world/map0/ground.png')
         ]
 
-        # self.obstacles.append(arcade.Sprite(
-        #     'hackathon/assets/world/map_obstacle_v.png',
-        #     center_x=960,
-        #     center_y=540,
-        #     hit_box_algorithm="Detailed"
-        # ))
-
-        self.obstacles.append(arcade.Sprite(
-            'hackathon/assets/world/map_obstacle_h.png',
-            center_x=960,
-            center_y=540,
-            hit_box_algorithm="Detailed"
-        ))
-
     def __setup_sprites(self) -> None:
-        pass
+        self.sprites.append(arcade.Sprite(
+            'hackathon/assets/world/map0/walls.png'
+        ))
 
     def __setup_engine(self) -> None:
         self.physics = arcade.PhysicsEngineSimple(
@@ -158,38 +145,50 @@ class World(Level):
         )
     
     def draw(self) -> None:
-        self.window.clear()
-
-        self.obstacles.draw()
+        self.camera.use()
 
         self.background.draw()
         self.sprites.draw()
-
         self.player.draw()
-
-        obs: arcade.Sprite = self.obstacles[0]
-        obs.draw_hit_box(color=arcade.color.RED, line_thickness=10)
     
     @property
     def finished(self) -> bool:
         return False
 
     def on_update(self, delta_time: int) -> bool:
+        self.scroll_to_player()
         self.player.update(delta_time)
         self.update_collisions()
-        # self.physics.update()
+
+    def on_resize(self, width: float, height: float) -> None:
+        self.camera.resize(int(width), int(height))
+
+    def scroll_to_player(self) -> None:
+        position = pyglet_math.Vec2(
+            self.player.sprite.center_x - self.window.width / 2,
+            self.player.sprite.center_y - self.window.height / 2
+        )
+
+        self.camera.move_to(position, 0.5)
 
     def update_collisions(self) -> None:
         self.player_bbox = self.player.bounding_box()
         hitbox = self.hitboxes[self.chunk]
 
+        height = hitbox.height
+        x_offset = int(hitbox.width / 2)
+        y_offset = int(height / 2)
+
         corner_collisions = [
-            hitbox.getpixel(corner)  # TODO shift according to chunk position
+            hitbox.getpixel((corner[0] + x_offset, height - corner[1] - y_offset))  # TODO shift according to chunk position
             for corner in self.player_bbox
         ]
 
         self.player_collisions = tuple(map(
-            lambda pixel: all(pixel[i] == HITBOX_COLLISION_COLOR for i in range(2)),
+            lambda pixel: all(
+                pixel[i] == HITBOX_COLLISION_COLOR
+                for i in range(2)
+            ),
             corner_collisions
         ))
 
@@ -197,8 +196,6 @@ class World(Level):
             self.player.stop()
     
     def on_key_press(self, key: int, modifiers: int) -> bool:
-        # self.update_collisions()
-
         match (key, self.player_collisions):
             case (arcade.key.W, (False, False, _, _)):
                 self.player.move_y(self.PLAYER_SPEED)
