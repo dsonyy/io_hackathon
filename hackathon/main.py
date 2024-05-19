@@ -45,7 +45,7 @@ class MyGame(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title, fullscreen=True)
 
-        arcade.set_background_color(arcade.color.AMAZON)
+        arcade.set_background_color(arcade.color.ALMOND)
         
         # TODO: this is a workaround to pass and control window stuff from the game states
         self.window = self
@@ -72,6 +72,10 @@ class MyGame(arcade.Window):
         # Reset all loaded levels
         for level in self.levels.values():
             level.setup()
+
+    def on_resize(self, width: float, height: float) -> None:
+        if hasattr(self.level, 'on_resize'):
+            self.level.on_resize(width, height)
 
     def on_draw(self):
         """
