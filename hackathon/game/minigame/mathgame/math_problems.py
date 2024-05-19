@@ -16,7 +16,7 @@ class MathProblems:
         max_val = min(99, answer+10)
         while len(answers) < answers_num:
             num = randint(min_val, max_val)
-            if num not in answers:
+            if num not in answers and num != answer:
                 answers.append(num)
 
         return answers
