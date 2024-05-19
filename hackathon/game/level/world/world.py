@@ -9,6 +9,8 @@ import numpy as np
 import PIL as pil
 
 
+HITBOX_COLLISION_COLOR: int = 0
+
 BORDER_OFFSET = 16
 CELL_SIZE = 128
 
@@ -161,15 +163,6 @@ class World(Level):
         pass
 
     def __setup_engine(self) -> None:
-        # hitboxes = arcade.hitbox.calculate_hit_box_points_detailed(
-        #     self.hitbox,
-        #     hit_box_detail=4.5
-        # )
-
-        # print(screen_image.mode)
-        # alpha = np.array(screen_image.getchannel('A'))
-        # print(alpha)
-
         self.physics = arcade.PhysicsEngineSimple(
             self.player.sprite,
             self.obstacles
@@ -205,30 +198,12 @@ class World(Level):
         ]
 
         self.player_collides = any(
-            pixel[3] != 0
+            all(pixel[component] == HITBOX_COLLISION_COLOR for component in range(3))
             for pixel in corner_collisions
         )
 
         print(f'corner_collisions: {corner_collisions}')
         print(f'player_collides: {self.player_collides}')
-
-        # self.player_collides = any(
-        #     corner_collisions
-        # )
-
-        # self.background.update()  # don't update sprites until they are static
-        # self.sprites.update()
-        # self.obstacles.update()
-
-        # self.player_collisions = arcade.check_for_collision_with_lists(
-        #     self.player.sprite,
-        #     [self.obstacles]
-        # )
-
-        # self.player_collides = len(self.player_collisions) > 0
-
-        # self.player_collisions = self.physics.update()
-        # self.player_collides = len(self.player_collisions) > 0
 
         # self.physics.update()
     
