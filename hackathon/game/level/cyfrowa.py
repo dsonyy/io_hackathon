@@ -14,6 +14,9 @@ SCREEN_WIDTH = 1920
 SCREEN_HEIGHT = 1080
 SCREEN_TITLE = "Starting Template"
 
+BLACK = arcade.color.BLACK
+RED = arcade.color.RED
+
 
 class MyGame(arcade.Window):
     """
@@ -39,6 +42,7 @@ class MyGame(arcade.Window):
         self.is_correct = False
 
         self.wires_group = [[0, 1, 0], [0, 0], [0, 1, 0], [0, 0], [0, 0, 0], [0, 0, 0]]
+
 
         # If you have sprite lists, you should create them here,
         # and set them to None
@@ -90,6 +94,8 @@ class MyGame(arcade.Window):
         arcade.draw_rectangle_outline(760, 500, 1200, 600,
                                       arcade.color.BLACK, 5)
 
+        if self.wires_group[5][2]:
+            self.is_correct = True
 
     def on_update(self, delta_time):
         """
@@ -242,13 +248,13 @@ class MyGame(arcade.Window):
 
         blank = arcade.Sprite("../../assets/blank_space.png")
         blank.center_x = 780
-        blank.center_y = 400
+        blank.center_y = 600
         blank.occupant = None
         self.blank_spaces.append(blank)
 
         blank = arcade.Sprite("../../assets/blank_space.png")
         blank.center_x = 780
-        blank.center_y = 600
+        blank.center_y = 400
         blank.occupant = None
         self.blank_spaces.append(blank)
 
@@ -260,42 +266,102 @@ class MyGame(arcade.Window):
         pass
 
     def draw_wires(self):
-        arcade.draw_line(160, 748, 375, 729, arcade.color.BLACK, 5)
-        arcade.draw_line(160, 671, 375, 677, arcade.color.BLACK, 5)
+
+        arcade.draw_line(160, 730, 375, 730, arcade.color.BLACK, 5)
+        arcade.draw_line(160, 670, 375, 670, arcade.color.RED, 5)
         arcade.draw_line(160, 500, 375, 500, arcade.color.BLACK, 5)
-        arcade.draw_line(160, 315, 375, 327, arcade.color.BLACK, 5)
-        arcade.draw_line(160, 253, 375, 277, arcade.color.BLACK, 5)
+        arcade.draw_line(160, 325, 375, 325, arcade.color.BLACK, 5)
+        arcade.draw_line(160, 270, 375, 270, arcade.color.RED, 5)
 
-        arcade.draw_line(575, 709, 680, 610, arcade.color.BLACK, 5)
-        arcade.draw_line(575, 506, 680, 425, arcade.color.BLACK, 5)
-        arcade.draw_line(575, 303, 680, 375, arcade.color.BLACK, 5)
 
-        arcade.draw_line(880, 602, 974, 523, arcade.color.BLACK, 5)
-        arcade.draw_line(880, 397, 974, 482, arcade.color.BLACK, 5)
+        arcade.draw_line(575, 709, 680, 600, self.get_color_by_logic(0, 0), 5)
+        arcade.draw_line(575, 506, 680, 425, self.get_color_by_logic(1, 1), 5)
+        arcade.draw_line(575, 303, 680, 375, self.get_color_by_logic(2, 2), 5)
 
-        arcade.draw_line(1175, 500, 1360, 500, arcade.color.BLACK, 5)
+        arcade.draw_line(880, 602, 974, 523, self.get_color_by_logic(3, 3), 5)
+        arcade.draw_line(880, 397, 974, 482, self.get_color_by_logic(4, 4), 5)
+
+        arcade.draw_line(1175, 500, 1360, 500, self.get_color_by_logic(5, 5), 5)
 
     # def check_
+
+    def get_color_by_logic(self, blank_id, wire_group_id):
+        if self.blank_spaces[blank_id] and self.blank_spaces[blank_id].occupant:
+            gate = self.blank_spaces[blank_id].occupant.gate_type
+            if len(self.wires_group[wire_group_id]) == 2:
+                match gate:
+                    case "not":
+                        self.wires_group[wire_group_id][1] = not self.wires_group[wire_group_id][0]
+                        i, j = self.get_next_wire_group(wire_group_id)
+                        self.wires_group[i][j] = self.wires_group[wire_group_id][1]
+                        return RED if self.wires_group[wire_group_id][1] else BLACK
+                    case "cable":
+                        self.wires_group[wire_group_id][1] = self.wires_group[wire_group_id][0]
+                        i, j = self.get_next_wire_group(wire_group_id)
+                        self.wires_group[i][j] = self.wires_group[wire_group_id][1]
+                        return RED if self.wires_group[wire_group_id][1] else BLACK
+                    case _:
+                        self.wires_group[wire_group_id][1] = 0
+                        i, j = self.get_next_wire_group(wire_group_id)
+                        self.wires_group[i][j] = 0
+                        return BLACK
+            elif len(self.wires_group[wire_group_id]) == 3:
+                # print(f"{wire_group_id},    {gate}")
+                match gate:
+                    case "and":
+                        print("dupa")
+                        self.wires_group[wire_group_id][2] = self.wires_group[wire_group_id][0] and self.wires_group[wire_group_id][1]
+                        i, j = self.get_next_wire_group(wire_group_id)
+                        self.wires_group[i][j] = self.wires_group[wire_group_id][2]
+                        return RED if self.wires_group[wire_group_id][2] else BLACK
+                    case "or":
+                        self.wires_group[wire_group_id][2] = self.wires_group[wire_group_id][0] or \
+                                                             self.wires_group[wire_group_id][1]
+                        i, j = self.get_next_wire_group(wire_group_id)
+                        self.wires_group[i][j] = self.wires_group[wire_group_id][2]
+                        return RED if self.wires_group[wire_group_id][2] else BLACK
+                    case "xor":
+                        self.wires_group[wire_group_id][2] = self.wires_group[wire_group_id][0] ^ \
+                                                             self.wires_group[wire_group_id][1]
+                        i, j = self.get_next_wire_group(wire_group_id)
+                        self.wires_group[i][j] = self.wires_group[wire_group_id][2]
+                        return RED if self.wires_group[wire_group_id][2] else BLACK
+                    case _:
+                        self.wires_group[wire_group_id][2] = 0
+                        i, j = self.get_next_wire_group(wire_group_id)
+                        self.wires_group[i][j] = self.wires_group[wire_group_id][2]
+                        return BLACK
+        return BLACK
+
+    def get_next_wire_group(self, id):
+        match id:
+            case 0: return 3, 0
+            case 1: return 4, 0
+            case 2: return 4, 1
+            case 3: return 5, 0
+            case 4: return 5, 1
+            case 5: return 5, 2
+
 
     def draw_lamp(self):
         if not self.is_correct:
             arcade.draw_circle_filled(1420, 600, 20, arcade.color.RED)
-            arcade.draw_line(1420, 500, 1420, 580, arcade.color.RED, 5)
-            arcade.draw_line(1360, 500, 1420, 500, arcade.color.RED, 5)
+            arcade.draw_line(1420, 500, 1420, 580, arcade.color.BLACK, 5)
+            arcade.draw_line(1360, 500, 1420, 500, arcade.color.BLACK, 5)
         else:
             arcade.draw_circle_filled(1420, 600, 20, arcade.color.GREEN)
-            arcade.draw_line(1420, 500, 1420, 580, arcade.color.GREEN, 5)
-            arcade.draw_line(1360, 500, 1420, 500, arcade.color.GREEN, 5)
+            arcade.draw_line(1420, 500, 1420, 580, arcade.color.BLACK, 5)
+            arcade.draw_line(1360, 500, 1420, 500, arcade.color.BLACK, 5)
 
     def signs_draw(self):
         sign = arcade.Sprite("../../assets/minus_power_off.png")
         sign.center_x = 90
-        sign.center_y = 745
+        sign.center_y = 730
         self.signs.append(sign)
 
         sign = arcade.Sprite("../../assets/plus_power_on.png")
         sign.center_x = 90
-        sign.center_y = 680
+        sign.center_y = 670
         self.signs.append(sign)
 
         sign = arcade.Sprite("../../assets/minus_power_off.png")
@@ -305,12 +371,12 @@ class MyGame(arcade.Window):
 
         sign = arcade.Sprite("../../assets/minus_power_off.png")
         sign.center_x = 90
-        sign.center_y = 315
+        sign.center_y = 325
         self.signs.append(sign)
 
         sign = arcade.Sprite("../../assets/plus_power_on.png")
         sign.center_x = 90
-        sign.center_y = 260
+        sign.center_y = 270
         self.signs.append(sign)
 
 
