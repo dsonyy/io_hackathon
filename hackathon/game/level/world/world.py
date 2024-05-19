@@ -5,6 +5,9 @@ import arcade.key
 from ...player.player import Player as BasePlayer
 from ..level import Level
 
+import numpy as np
+import PIL as pil
+
 
 BORDER_OFFSET = 16
 CELL_SIZE = 128
@@ -27,13 +30,30 @@ class State(IntEnum):
 
 
 class Player(BasePlayer):
+    TEXTURE: str = 'hackathon/assets/world/player.png'
     sprite: arcade.Sprite
 
     def __init__(self, start_x: int, start_y: int) -> None:
         self.sprite = arcade.Sprite(
-            'hackathon/assets/world/player.png',
+            self.TEXTURE,
             center_x=start_x,
             center_y=start_y
+        )
+
+    def bounding_box(self) -> tuple[tuple[int, int], ...]:
+        '''
+        UL, UR, LL, LR
+        '''
+        x = int(self.sprite.center_x)
+        y = int(self.sprite.center_y)
+        w = int(self.sprite.width) // 2
+        h = int(self.sprite.height) // 2
+
+        return (
+            (x - w, y + h),
+            (x + w, y + h),
+            (x - w, y - h),
+            (x + w, y - h)
         )
 
     def draw(self) -> None:
@@ -57,25 +77,26 @@ class World(Level):
     window: arcade.Window
     
     background: arcade.SpriteList
+    hitbox: pil.Image.Image
     sprites: arcade.SpriteList
     obstacles: arcade.SpriteList
 
     player: Player
     state: State
 
+    player_bbox: tuple[tuple[int, int], ...]
     player_collisions: list[arcade.Sprite]
     player_collides: bool
 
     physics: arcade.PhysicsEngineSimple
 
     PLAYER_SPEED: int = 5
-    PLAYER_START: tuple[int, int] = 450, 450
+    PLAYER_START: tuple[int, int] = 600, 600
 
     def __init__(self, window: arcade.Window) -> None:
         super().__init__()
         self.window = window
         
-        self.player = Player(*self.PLAYER_START)
         self.state = State.Idle
 
         self.player_collisions = []
@@ -87,11 +108,16 @@ class World(Level):
         self.obstacles = arcade.SpriteList()
 
     def setup(self) -> None:
-        self.__setup_background()
-        self.__setup_sprites()
         self.__setup_obstacles()
+        self.__setup_player()
         self.__setup_engine()
 
+        self.__setup_background()
+        self.__setup_sprites()
+
+    def __setup_player(self) -> None:
+        self.player = Player(*self.PLAYER_START)
+        
     def __setup_background(self) -> None:
         self.background.append(arcade.Sprite(
             'hackathon/assets/world/map.png',
@@ -100,12 +126,23 @@ class World(Level):
         ))
 
     def __setup_obstacles(self) -> None:
+        self.hitbox = pil.Image.open('hackathon/assets/world/map_obstacle_h.png')
+
+        # self.obstacles.append(arcade.Sprite(
+        #     'hackathon/assets/world/map_obstacle_v.png',
+        #     center_x=960,
+        #     center_y=540,
+        #     hit_box_algorithm="Detailed"
+        # ))
+
         self.obstacles.append(arcade.Sprite(
-            'hackathon/assets/world/map_obstacle.png',
+            'hackathon/assets/world/map_obstacle_h.png',
             center_x=960,
             center_y=540,
             hit_box_algorithm="Detailed"
         ))
+
+        return
 
         for y, row in enumerate(MAP):
             for x, obj in enumerate(row):
@@ -124,7 +161,14 @@ class World(Level):
         pass
 
     def __setup_engine(self) -> None:
-        hitboxes = arcade.hitbox.calculate_hit_box_points_simple(self.obstacles[0])
+        # hitboxes = arcade.hitbox.calculate_hit_box_points_detailed(
+        #     self.hitbox,
+        #     hit_box_detail=4.5
+        # )
+
+        # print(screen_image.mode)
+        # alpha = np.array(screen_image.getchannel('A'))
+        # print(alpha)
 
         self.physics = arcade.PhysicsEngineSimple(
             self.player.sprite,
@@ -134,12 +178,15 @@ class World(Level):
     def draw(self) -> None:
         self.window.clear()
 
-        # self.obstacles.draw()
+        self.obstacles.draw()
 
         self.background.draw()
         self.sprites.draw()
 
         self.player.draw()
+
+        obs: arcade.Sprite = self.obstacles[0]
+        obs.draw_hit_box(color=arcade.color.RED, line_thickness=10)
     
     @property
     def finished(self) -> bool:
@@ -147,6 +194,28 @@ class World(Level):
 
     def on_update(self, delta_time: int) -> bool:
         self.player.update(delta_time)
+
+        self.player_bbox = self.player.bounding_box()
+
+        print(f'bbox: {self.player_bbox}')
+
+        corner_collisions = [
+            self.hitbox.getpixel(corner)
+            for corner in self.player_bbox
+        ]
+
+        self.player_collides = any(
+            pixel[3] != 0
+            for pixel in corner_collisions
+        )
+
+        print(f'corner_collisions: {corner_collisions}')
+        print(f'player_collides: {self.player_collides}')
+
+        # self.player_collides = any(
+        #     corner_collisions
+        # )
+
         # self.background.update()  # don't update sprites until they are static
         # self.sprites.update()
         # self.obstacles.update()
@@ -161,21 +230,23 @@ class World(Level):
         # self.player_collisions = self.physics.update()
         # self.player_collides = len(self.player_collisions) > 0
 
-        self.physics.update()
+        # self.physics.update()
     
     def on_key_press(self, key: int, modifiers: int) -> bool:
-        match key:
-            case arcade.key.W:
-                self.player.move_y(self.PLAYER_SPEED)
 
-            case arcade.key.S:
-                self.player.move_y(-self.PLAYER_SPEED)
+        if not self.player_collides:
+            match key:
+                case arcade.key.W:
+                    self.player.move_y(self.PLAYER_SPEED)
 
-            case arcade.key.A:
-                self.player.move_x(-self.PLAYER_SPEED)
+                case arcade.key.S:
+                    self.player.move_y(-self.PLAYER_SPEED)
 
-            case arcade.key.D:
-                self.player.move_x(self.PLAYER_SPEED)
+                case arcade.key.A:
+                    self.player.move_x(-self.PLAYER_SPEED)
+
+                case arcade.key.D:
+                    self.player.move_x(self.PLAYER_SPEED)
     
     def on_key_release(self, key: int, modifiers: int) -> bool:
         match key:
