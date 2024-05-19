@@ -51,7 +51,7 @@ class MyGame(arcade.Window):
     classes_completed: dict[State, bool]
 
     def __init__(self, width, height, title):
-        super().__init__(width, height, title, fullscreen=False)
+        super().__init__(width, height, title, fullscreen=True)
 
         arcade.set_background_color(arcade.color.ALMOND)
 
@@ -87,7 +87,7 @@ class MyGame(arcade.Window):
         """ Set up the game variables. Call to re-start the game. """
         # Create your sprites and sprite lists here
 
-        self.switch_to_level(State.MinigameMath)
+        self.switch_to_level(State.Menu)
 
         # Reset all loaded levels
         for level in self.levels.values():
