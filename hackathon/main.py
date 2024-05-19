@@ -57,6 +57,9 @@ class MyGame(arcade.Window):
             'ects': 0
         }
 
+    def add_ects(self) -> None:
+        self.plot['ects'] += 1
+
     def switch_to_level(self, state: State) -> None:
         level = self.levels.get(state, None)
 

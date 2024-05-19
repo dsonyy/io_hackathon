@@ -120,8 +120,6 @@ class Electronics(Level):
         self.manager.draw()
 
 
-
-
     def on_update(self, delta_time):
         """
         All the logic to move, and the game logic goes here.
@@ -548,8 +546,8 @@ class Electronics(Level):
         # print(f"User pressed {button_text}.")
         if self.level == 3:
             self.manager.clear()
+            self.window.add_ects()
             self.window.switch_to_level(State.World)
-        pass
 
     def signs_draw(self):
         def level1():

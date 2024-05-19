@@ -2,6 +2,7 @@ from enum import IntEnum, auto
 from typing import Any, Optional
 
 import arcade
+import arcade.color
 import arcade.key
 
 import arcade.key
@@ -219,13 +220,17 @@ class World(Level):
 
             case Active.MathClassroom:
                 self.window.switch_to_level(GameState.MinigameMath)
-                self.player_camera.move(pyglet_math.Vec2(0, 0))
-                self.player_camera.use()
+                self.prepare_jump()
 
             case Active.ElectronicsClassroom:
                 self.window.switch_to_level(GameState.MinigameElectro)
-                self.player_camera.move(pyglet_math.Vec2(0, 0))
-                self.player_camera.use()
+                self.prepare_jump()
+
+    def prepare_jump(self) -> None:
+        self.player_camera.move(pyglet_math.Vec2(0, 0))
+        self.player_camera.use()
+        self.window.set_mouse_visible(True)
+        arcade.set_background_color(arcade.color.ALMOND)
 
     def on_update(self, delta_time: int) -> bool:
         self.scroll_to_player()
@@ -264,8 +269,8 @@ class World(Level):
             corner_collisions
         ))
 
-        print(corner_collisions)
-        print(self.player_collisions)
+        # print(corner_collisions)
+        # print(self.player_collisions)
 
         if any(self.player_collisions):
             self.player.stop()
