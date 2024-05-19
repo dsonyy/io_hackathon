@@ -50,6 +50,8 @@ class MyGame(arcade.Window):
     plot: dict[Literal['ects'], int]
     classes_completed: dict[State, bool]
 
+    names: list[str]
+
     def __init__(self, width, height, title):
         super().__init__(width, height, title, fullscreen=True)
 
@@ -58,15 +60,10 @@ class MyGame(arcade.Window):
         self.window = self
         self.levels = dict()
 
-        self.plot = {
-            'ects': 0
-        }
+        self.plot = {}
+        self.classes_completed = {}
 
-        self.classes_completed = {
-            State.MinigameAlgo: False,
-            State.MinigameElectro: False,
-            State.MinigameMath: False
-        }
+        self.names = []
 
     def add_ects(self) -> None:
         self.plot['ects'] += 1
@@ -86,6 +83,16 @@ class MyGame(arcade.Window):
     def setup(self):
         """ Set up the game variables. Call to re-start the game. """
         # Create your sprites and sprite lists here
+
+        self.plot = {
+            'ects': 0
+        }
+
+        self.classes_completed = {
+            State.MinigameAlgo: False,
+            State.MinigameElectro: False,
+            State.MinigameMath: False
+        }
 
         self.switch_to_level(State.Menu)
 

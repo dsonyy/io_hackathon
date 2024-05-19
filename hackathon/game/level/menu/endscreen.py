@@ -16,7 +16,6 @@ class EndScreen(Level):
         self.width, self.height = self.window.get_size()
 
         self.text = ''
-        self.names = []
 
         # load sprites
 
@@ -97,8 +96,13 @@ class EndScreen(Level):
         self.text_button.draw()
 
         # self.sprite_logo.draw()
-        arcade.draw_rectangle_filled(self.width // 2, int(0.50 * self.height), self.width // 4, int(self.height * 0.05),
-                                     arcade.color.VIOLET)
+        arcade.draw_rectangle_filled(
+            self.width // 2, 
+            int(0.50 * self.height), 
+            self.width // 4, 
+            int(self.height * 0.05),
+            arcade.color.VIOLET
+        )
 
         self.cursor.draw()
 
@@ -109,7 +113,7 @@ class EndScreen(Level):
         )
         self.text_display.draw()
 
-        for i, name in enumerate(self.names):
+        for i, name in enumerate(self.window.names):
             self.text_lista = self._build_text(
                 text=name,
                 x=self.width // 8,
@@ -148,8 +152,9 @@ class EndScreen(Level):
     def on_mouse_press(self, x: int, y: int, button: int, key_modifiers: int) -> None:
         if self._is_in_bounds(x, y, *self._get_text_bounds(self.text_start)):
             self.window.switch_to_level(State.World)
+            self.window.setup()
         if self._is_in_bounds(x, y, *self._get_text_bounds(self.text_button)):
-            self.names.append(self.text)
+            self.window.names.append(self.text)
             self.text = ''
         if self._is_in_bounds(x, y, *self._get_text_bounds(self.text_exit)):
             arcade.close_window()
