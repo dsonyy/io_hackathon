@@ -8,9 +8,10 @@ If Python and Arcade are installed, this example can be run from the command lin
 python -m arcade.examples.starting_template
 """
 import arcade
+import arcade.gui
 
 from .level import Level
-
+from .. import State
 
 SCREEN_WIDTH = 1920
 SCREEN_HEIGHT = 1080
@@ -47,6 +48,8 @@ class Electronics(Level):
 
         self.wires_group = [[0, 1, 0], [0, 0], [0, 1, 0], [0, 0], [0, 0, 0], [0, 0, 0]]
 
+        self.manager = arcade.gui.UIManager()
+        self.manager.enable()
 
         # If you have sprite lists, you should create them here,
         # and set them to None
@@ -107,8 +110,8 @@ class Electronics(Level):
             5
         )
 
-        if self.wires_group[5][2]:
-            self.is_correct = True
+        self.manager.draw()
+
 
     def on_update(self, delta_time):
         """
@@ -117,6 +120,8 @@ class Electronics(Level):
         need it.
         """
         self.all_sprites.update()
+        if self.wires_group[5][2]:
+            self.is_correct = True
         # super().update(delta_time)
         pass
 
@@ -360,8 +365,31 @@ class Electronics(Level):
             arcade.draw_line(1360, 500, 1420, 500, arcade.color.BLACK, 5)
         else:
             arcade.draw_circle_filled(1420, 600, 20, arcade.color.GREEN)
-            arcade.draw_line(1420, 500, 1420, 580, arcade.color.BLACK, 5)
-            arcade.draw_line(1360, 500, 1420, 500, arcade.color.BLACK, 5)
+            arcade.draw_line(1420, 500, 1420, 580, arcade.color.RED, 5)
+            arcade.draw_line(1360, 500, 1420, 500, arcade.color.RED, 5)
+            self.win_window()
+
+    def win_window(self):
+        message_box = arcade.gui.UIMessageBox(
+            width=300,
+            height=200,
+            message_text=(
+                "Ja używam glukoza. "
+                "Glokoza glukoza 4 używa myśle 2 opcje "
+                "I każda chce użyć najwieksze opcje, pierwsza lub druga"
+            ),
+            callback=self.on_message_box_close,
+            buttons=["Jupijajej!"]
+        )
+
+        self.manager.add(message_box)
+
+    def on_message_box_close(self, button_text):
+        # make action after OK | windows switch to lvl main
+        # print(f"User pressed {button_text}.")
+        self.manager.clear()
+        self.window.switch_to_level(State.World)
+        pass
 
     def signs_draw(self):
         sign = arcade.Sprite("hackathon/assets/minus_power_off.png")
