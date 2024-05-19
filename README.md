@@ -28,6 +28,46 @@ Prowadzący przedmiotów zlecą ci rozmaite zadania. Sposób w jaki je wykonasz 
 
 <img src="./docs/idea_map.jpg" width=300>
 
+## Makiety
+
+### Korytarze - mapa
+
+Studenci mają możliwość chodzenia i eksplorowania korytarzy budynku D17. Można wejść do wielu sal, np. z minigrami lub poszukać ukrytych ciekawostek.
+
+<img src="./docs/makiety/makieta7.png" width=500>
+
+### Gra Matematyka
+
+Gra polega na przejściu kursu matematycznego. Po skończeniu dwóch laboratoriów, studenci będzą przystępować do kolokwium.
+
+<img src="./docs/makiety/makieta1.png" width=500>
+
+<img src="./docs/makiety/makieta2.png" width=500>
+
+<img src="./docs/makiety/makieta3.png" width=500>
+
+<img src="./docs/makiety/makieta4.png" width=500>
+
+### Gra Cyfrówka
+
+Gra polega na poprawnym ułożeniu bramek logicznych, tak aby końcowy wynik był wartością pozytywną. W efekcie lampka zapala się na zielono.
+
+<img src="./docs/makiety/makieta6.png" width=500>
+
+### Easter eggs
+
+Na planszy gry będzie można znaleźć wiele ciekawostek. Poniżej są nasze pomysły na niektóre z nich.
+
+<img src="./docs/makiety/idea1.png" width=500>
+
+<img src="./docs/makiety/idea2.png" width=500>
+
+<img src="./docs/makiety/idea3.png" width=500>
+
+<img src="./docs/makiety/idea4.png" width=500>
+
+<img src="./docs/makiety/idea5.png" width=500>
+
 ## Środowisko deweloperskie
 
 1. Python version: `3.10`,
