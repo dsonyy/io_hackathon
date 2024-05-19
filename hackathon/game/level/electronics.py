@@ -30,21 +30,21 @@ class Electronics(Level):
     with your own code. Don't leave 'pass' in this program.
     """
 
-    N_GATES: int = 4
 
     # def __init__(self, width, height, title, n_gates=4):
     def __init__(self, window: arcade.Window) -> None:
         self.window = window
-        self.all_sprites = arcade.SpriteList()
-        self.blank_spaces = arcade.SpriteList()
-        self.signs = arcade.SpriteList()
+        # self.all_sprites = arcade.SpriteList()
+        # self.blank_spaces = arcade.SpriteList()
+        # self.signs = arcade.SpriteList()
         self.held_blocks = None
         self.held_blocks_original_position = None
-        self.number_of_gates = self.N_GATES
 
         self.is_player_grabbed = False
         self.grabbed_sprite = None
         self.is_correct = False
+
+        self.level = 1
 
         self.wires_group = [[0, 1, 0], [0, 0], [0, 1, 0], [0, 0], [0, 0, 0], [0, 0, 0]]
 
@@ -56,7 +56,9 @@ class Electronics(Level):
 
     def setup(self):
         """ Set up the game variables. Call to re-start the game. """
-
+        self.all_sprites = arcade.SpriteList()
+        self.blank_spaces = arcade.SpriteList()
+        self.signs = arcade.SpriteList()
         # arcade.set_background_color(arcade.color.AMAZON)
 
         # Create your sprites and sprite lists here
@@ -66,7 +68,6 @@ class Electronics(Level):
         # self.player.left = 10
         # self.all_sprites.append(self.player)
 
-        self.held_blocks = []  # kabelki maja priorytet
         # self.held_blocks_original_position = []
 
         # for i in range(self.number_of_gates):
@@ -84,11 +85,11 @@ class Electronics(Level):
     def finished(self) -> bool:
         return False
 
+
     def draw(self):
         """
         Render the screen.
         """
-
         # This command should happen before we start drawing. It will clear
         # the screen to the background color, and erase what we drew last frame.
         self.window.clear()
