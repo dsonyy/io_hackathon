@@ -1,5 +1,6 @@
 from enum import IntEnum, auto
 from typing import Any, Optional
+from collections import deque
 
 import arcade
 import arcade.color
@@ -16,10 +17,13 @@ from ....game.state import State as GameState
 import PIL as pil
 
 
+MESSAGE_DISPLAY_TIME: int = 3
+
 HITBOX_COLLISION_COLOR: int = 0
 
 BORDER_OFFSET = 16
 CELL_SIZE = 128
+
 
 class Active(IntEnum):
     MathClassroom = auto()
@@ -30,8 +34,9 @@ class Active(IntEnum):
 
 ACTIVES: list[tuple[tuple[int, int], Any]] = [
     ((200, 300), Active.ElectronicsClassroom),
-    ((300, 400), Active.Laptop)
+    ((300, 100), Active.Laptop)
 ]
+
 
 class State(IntEnum):
     Idle = auto()
@@ -54,8 +59,8 @@ class Player(BasePlayer):
         '''
         x = int(self.sprite.center_x)
         y = int(self.sprite.center_y)
-        w = int(self.sprite.width) // 2
-        h = int(self.sprite.height) // 2
+        w = int(self.sprite.width) // 4
+        h = int(self.sprite.height) // 3
 
         return (
             (x - w, y + h),
@@ -83,9 +88,9 @@ class Player(BasePlayer):
 
 class World(Level):
     window: arcade.Window
-    
+
     background: arcade.SpriteList
-    
+
     hitboxes: list[pil.Image.Image]
     chunk: int = 0
 
@@ -106,13 +111,17 @@ class World(Level):
     player_camera: arcade.Camera
     overlay_camera: arcade.Camera
 
+    messages: deque[list[tuple[str, int, int]]]
+
     PLAYER_SPEED: int = 5
     PLAYER_START: tuple[int, int] = 0, 0
+
+    keys: set[int] = set()
 
     def __init__(self, window: arcade.Window) -> None:
         super().__init__()
         self.window = window
-        
+
         self.state = State.Idle
 
         self.player_collisions = []
@@ -135,6 +144,8 @@ class World(Level):
             window.height
         )
 
+        self.messages = deque()
+
     def setup(self) -> None:
         self.__setup_obstacles()
         self.__setup_player()
@@ -147,7 +158,7 @@ class World(Level):
 
     def __setup_player(self) -> None:
         self.player = Player(*self.PLAYER_START)
-    
+
     def __setup_actives(self) -> None:
         for position, type in ACTIVES:
             active = arcade.Sprite(
@@ -180,7 +191,7 @@ class World(Level):
             self.player.sprite,
             self.actives
         )
-    
+
     def draw(self) -> None:
         self.player_camera.use()
 
@@ -188,9 +199,32 @@ class World(Level):
         self.sprites.draw()
         self.actives.draw()
         self.player.draw()
+        self.__draw_messages()
         
         self.overlay_camera.use()
         self.__draw_overlay()
+
+    def __draw_messages(self) -> None:
+        for lines, x, y in self.messages:
+            width = len(max(lines, key=len)) * 17
+            height = 30 * len(lines)
+
+            arcade.draw_rectangle_filled(
+                x,
+                y,
+                width,
+                height,
+                arcade.color.ALMOND
+            )
+
+            for i, line in enumerate(lines):
+                arcade.draw_text(
+                    line,
+                    x - width // 2,
+                    y + 15 - 21 * i,
+                    arcade.color.BLACK_BEAN,
+                    20
+                )
 
     def __draw_overlay(self) -> None:
         arcade.draw_rectangle_filled(
@@ -207,7 +241,7 @@ class World(Level):
     @property
     def finished(self) -> bool:
         return False
-    
+
     def interaction(self) -> None:
         active = self.player_actives_collision
 
@@ -216,7 +250,11 @@ class World(Level):
                 pass
 
             case Active.Laptop:
-                pass
+                self.__display_message([
+                    "Praca na studiach polega",
+                    "przede wszystkim na",
+                    "wykonywaniu praktycznych projektów."
+                ], 300, 450)
 
             case Active.MathClassroom:
                 self.window.switch_to_level(GameState.MinigameMath)
@@ -225,6 +263,20 @@ class World(Level):
             case Active.ElectronicsClassroom:
                 self.window.switch_to_level(GameState.MinigameElectro)
                 self.prepare_jump()
+
+    def __display_message(self, text: list[str], x: int, y: int) -> None:
+        self.messages.appendleft((text, x, y))
+
+        def handler(_time: float) -> None:
+            try:
+                self.messages.pop()
+            except Exception as ignore:
+                pass
+
+        arcade.schedule(
+            handler,
+            MESSAGE_DISPLAY_TIME
+        )
 
     def prepare_jump(self) -> None:
         self.player_camera.move(pyglet_math.Vec2(0, 0))
@@ -236,6 +288,31 @@ class World(Level):
         self.scroll_to_player()
         self.player.update(delta_time)
         self.update_collisions()
+        self.__update_plot()
+
+    def __update_plot(self) -> None:
+        classes = self.window.classes_completed
+
+        if classes[GameState.MinigameAlgo]:
+            pass
+
+        if classes[GameState.MinigameMath]:
+            pass
+
+        if classes[GameState.MinigameElectro]:
+            pass
+
+        # player movement
+        self.player.stop()
+        a, b, c, d = self.player_collisions
+        if arcade.key.W in self.keys and not a and not b:
+            self.player.move_y(self.PLAYER_SPEED)
+        if arcade.key.S in self.keys and not c and not d:
+            self.player.move_y(-self.PLAYER_SPEED)
+        if arcade.key.A in self.keys and not a and not c:
+            self.player.move_x(-self.PLAYER_SPEED)
+        if arcade.key.D in self.keys and not b and not d:
+            self.player.move_x(self.PLAYER_SPEED)
 
     def on_resize(self, width: float, height: float) -> None:
         self.player_camera.resize(int(width), int(height))
@@ -284,20 +361,22 @@ class World(Level):
 
             case [sprite, *_]:
                 self.player_actives_collision = sprite
-    
+
     def on_key_press(self, key: int, modifiers: int) -> bool:
-        match (key, self.player_collisions):
-            case (arcade.key.W, (False, False, _, _)):
-                self.player.move_y(self.PLAYER_SPEED)
+        self.keys.add(key)
 
-            case (arcade.key.S, (_, _, False, False)):
-                self.player.move_y(-self.PLAYER_SPEED)
+        # match (key, self.player_collisions):
+        #     case (arcade.key.W, (False, False, _, _)):
+        #         self.player.move_y(self.PLAYER_SPEED)
 
-            case (arcade.key.A, (False, _, False, _)):
-                self.player.move_x(-self.PLAYER_SPEED)
+        #     case (arcade.key.S, (_, _, False, False)):
+        #         self.player.move_y(-self.PLAYER_SPEED)
 
-            case (arcade.key.D, (_, False, _, False)):
-                self.player.move_x(self.PLAYER_SPEED)
+        #     case (arcade.key.A, (False, _, False, _)):
+        #         self.player.move_x(-self.PLAYER_SPEED)
+
+        #     case (arcade.key.D, (_, False, _, False)):
+        #         self.player.move_x(self.PLAYER_SPEED)
 
         match (key, self.player_actives_collision):
             case (_, None):
@@ -305,27 +384,28 @@ class World(Level):
 
             case (arcade.key.E, _):
                 self.interaction()
-    
+
     def on_key_release(self, key: int, modifiers: int) -> bool:
-        match key:
-            case arcade.key.W:
-                self.player.stop()
+        self.keys.remove(key)
 
-            case arcade.key.S:
-                self.player.stop()
+        # match key:
+        #     case arcade.key.W:
+        #         self.player.stop()
 
-            case arcade.key.A:
-                self.player.stop()
+        #     case arcade.key.S:
+        #         self.player.stop()
 
-            case arcade.key.D:
-                self.player.stop()
-    
+        #     case arcade.key.A:
+        #         self.player.stop()
+
+        #     case arcade.key.D:
+        #         self.player.stop()
+
     def on_mouse_motion(self, x: int, y: int, delta_x: int, delta_y: int):
         pass
-    
+
     def on_mouse_press(self, x: int, y: int, button: int, key_modifiers: int):
         pass
-    
+
     def on_mouse_release(self, x: int, y: int, button: int, key_modifiers: int):
         pass
-    

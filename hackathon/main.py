@@ -16,6 +16,7 @@ from .game.player import Player
 from .game.level.menu import Menu
 from .game.level.world import World
 from .game.level.electronics import Electronics
+from .game.level.menu.endscreen import EndScreen
 
 
 SCREEN_WIDTH = 1920
@@ -25,7 +26,8 @@ SCREEN_TITLE = "Starting Template"
 LEVELS: dict[State, type[Level]] = {
     State.Menu: Menu,
     State.World: World,
-    State.MinigameElectro: Electronics
+    State.MinigameElectro: Electronics,
+    State.EndScreen: EndScreen
 }
 
 
@@ -44,17 +46,24 @@ class MyGame(arcade.Window):
     levels: dict[State, Level]
 
     plot: dict[Literal['ects'], int]
+    classes_completed: dict[State, bool]
 
     def __init__(self, width, height, title):
-        super().__init__(width, height, title, fullscreen=True)
+        super().__init__(width, height, title, fullscreen=False)
 
         arcade.set_background_color(arcade.color.ALMOND)
-        
+
         self.window = self
         self.levels = dict()
 
         self.plot = {
             'ects': 0
+        }
+
+        self.classes_completed = {
+            State.MinigameAlgo: False,
+            State.MinigameElectro: False,
+            State.MinigameMath: False
         }
 
     def add_ects(self) -> None:
