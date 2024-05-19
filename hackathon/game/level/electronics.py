@@ -7,6 +7,8 @@ template.
 If Python and Arcade are installed, this example can be run from the command line with:
 python -m arcade.examples.starting_template
 """
+import time
+
 import arcade
 import arcade.gui
 
@@ -33,20 +35,18 @@ class Electronics(Level):
 
     # def __init__(self, width, height, title, n_gates=4):
     def __init__(self, window: arcade.Window) -> None:
+
+
         self.window = window
         # self.all_sprites = arcade.SpriteList()
         # self.blank_spaces = arcade.SpriteList()
         # self.signs = arcade.SpriteList()
-        self.held_blocks = None
-        self.held_blocks_original_position = None
-
-        self.is_player_grabbed = False
-        self.grabbed_sprite = None
-        self.is_correct = False
+        # self.held_blocks = None
+        # self.held_blocks_original_position = None
 
         self.level = 1
 
-        self.wires_group = [[0, 1, 0], [0, 0], [0, 1, 0], [0, 0], [0, 0, 0], [0, 0, 0]]
+        self.wires_group = None
 
         self.manager = arcade.gui.UIManager()
         self.manager.enable()
@@ -59,6 +59,11 @@ class Electronics(Level):
         self.all_sprites = arcade.SpriteList()
         self.blank_spaces = arcade.SpriteList()
         self.signs = arcade.SpriteList()
+
+        self.is_player_grabbed = False
+        self.grabbed_sprite = None
+        self.is_correct = False
+        self.is_level_complete = False
         # arcade.set_background_color(arcade.color.AMAZON)
 
         # Create your sprites and sprite lists here
@@ -71,6 +76,7 @@ class Electronics(Level):
         # self.held_blocks_original_position = []
 
         # for i in range(self.number_of_gates):
+        self.set_wires_groups()
 
         self.draw_gates()
 
@@ -114,6 +120,8 @@ class Electronics(Level):
         self.manager.draw()
 
 
+
+
     def on_update(self, delta_time):
         """
         All the logic to move, and the game logic goes here.
@@ -121,8 +129,18 @@ class Electronics(Level):
         need it.
         """
         self.all_sprites.update()
-        if self.wires_group[5][2]:
+
+        if self.is_level_complete:
+            if self.level == 3:
+                self.win_window()
+            else:
+                time.sleep(2)
+                self.level += 1
+                self.setup()
+
+        if (self.level == 1 and self.wires_group[1][2]) or (self.level == 2 and self.wires_group[2][2]) or (self.level == 3 and self.wires_group[5][2]):
             self.is_correct = True
+
         # super().update(delta_time)
         pass
 
@@ -134,7 +152,7 @@ class Electronics(Level):
         https://api.arcade.academy/en/latest/arcade.key.html
         """
         # if key == 100:
-        #     self.player.change_x = 10
+        #     print(self.wires_group)
         # if key == 97:
         #     self.player.change_x = -5
         pass
@@ -195,110 +213,229 @@ class Electronics(Level):
     def draw_gates(self):
         gates_height = self.window.height // 6
 
-        gate = arcade.Sprite("hackathon/assets/xor_gate.png")
-        gate.gate_type = "xor"
-        gate.top = gates_height
-        gate.left = self.window.width // 7
-        gate.default_x = gate.center_x
-        gate.default_y = gate.center_y
-        self.all_sprites.append(gate)
+        def level1():
+            gate = arcade.Sprite("hackathon/assets/xor_gate.png")
+            gate.gate_type = "xor"
+            gate.top = gates_height
+            gate.left = self.window.width // 7
+            gate.default_x = gate.center_x
+            gate.default_y = gate.center_y
+            self.all_sprites.append(gate)
 
-        gate = arcade.Sprite("hackathon/assets/not_gate.png")
-        gate.top = gates_height
-        gate.gate_type = "not"
-        gate.left = self.window.width // 7 * 2
-        gate.default_x = gate.center_x
-        gate.default_y = gate.center_y
-        self.all_sprites.append(gate)
+            gate = arcade.Sprite("hackathon/assets/or_gate.png")
+            gate.gate_type = "or"
+            gate.top = gates_height
+            gate.left = self.window.width // 7 * 2
+            gate.default_x = gate.center_x
+            gate.default_y = gate.center_y
+            self.all_sprites.append(gate)
 
-        gate = arcade.Sprite("hackathon/assets/and_gate.png")
-        gate.top = gates_height
-        gate.gate_type = "and"
-        gate.left = self.window.width // 7 * 3
-        gate.default_x = gate.center_x
-        gate.default_y = gate.center_y
-        self.all_sprites.append(gate)
+        def level2():
+            gate = arcade.Sprite("hackathon/assets/cable_gate.png")
+            gate.gate_type = "cable"
+            gate.top = gates_height
+            gate.left = self.window.width // 7
+            gate.default_x = gate.center_x
+            gate.default_y = gate.center_y
+            self.all_sprites.append(gate)
 
-        gate = arcade.Sprite("hackathon/assets/and_gate.png")
-        gate.top = gates_height
-        gate.gate_type = "and"
-        gate.left = self.window.width // 7 * 4
-        gate.default_x = gate.center_x
-        gate.default_y = gate.center_y
-        self.all_sprites.append(gate)
+            gate = arcade.Sprite("hackathon/assets/not_gate.png")
+            gate.gate_type = "not"
+            gate.top = gates_height
+            gate.left = self.window.width // 7 * 2
+            gate.default_x = gate.center_x
+            gate.default_y = gate.center_y
+            self.all_sprites.append(gate)
 
-        gate = arcade.Sprite("hackathon/assets/cable_gate.png")
-        gate.top = gates_height
-        gate.gate_type = "cable"
-        gate.left = self.window.width // 7 * 5
-        gate.default_x = gate.center_x
-        gate.default_y = gate.center_y
-        self.all_sprites.append(gate)
+            gate = arcade.Sprite("hackathon/assets/and_gate.png")
+            gate.gate_type = "and"
+            gate.top = gates_height
+            gate.left = self.window.width // 7 * 3
+            gate.default_x = gate.center_x
+            gate.default_y = gate.center_y
+            self.all_sprites.append(gate)
 
-        gate = arcade.Sprite("hackathon/assets/or_gate.png")
-        gate.top = gates_height
-        gate.gate_type = "or"
-        gate.left = self.window.width // 7 * 6
-        gate.default_x = gate.center_x
-        gate.default_y = gate.center_y
-        self.all_sprites.append(gate)
+        def level3():
+            gate = arcade.Sprite("hackathon/assets/xor_gate.png")
+            gate.gate_type = "xor"
+            gate.top = gates_height
+            gate.left = self.window.width // 7
+            gate.default_x = gate.center_x
+            gate.default_y = gate.center_y
+            self.all_sprites.append(gate)
+
+            gate = arcade.Sprite("hackathon/assets/not_gate.png")
+            gate.top = gates_height
+            gate.gate_type = "not"
+            gate.left = self.window.width // 7 * 2
+            gate.default_x = gate.center_x
+            gate.default_y = gate.center_y
+            self.all_sprites.append(gate)
+
+            gate = arcade.Sprite("hackathon/assets/and_gate.png")
+            gate.top = gates_height
+            gate.gate_type = "and"
+            gate.left = self.window.width // 7 * 3
+            gate.default_x = gate.center_x
+            gate.default_y = gate.center_y
+            self.all_sprites.append(gate)
+
+            gate = arcade.Sprite("hackathon/assets/and_gate.png")
+            gate.top = gates_height
+            gate.gate_type = "and"
+            gate.left = self.window.width // 7 * 4
+            gate.default_x = gate.center_x
+            gate.default_y = gate.center_y
+            self.all_sprites.append(gate)
+
+            gate = arcade.Sprite("hackathon/assets/cable_gate.png")
+            gate.top = gates_height
+            gate.gate_type = "cable"
+            gate.left = self.window.width // 7 * 5
+            gate.default_x = gate.center_x
+            gate.default_y = gate.center_y
+            self.all_sprites.append(gate)
+
+            gate = arcade.Sprite("hackathon/assets/or_gate.png")
+            gate.top = gates_height
+            gate.gate_type = "or"
+            gate.left = self.window.width // 7 * 6
+            gate.default_x = gate.center_x
+            gate.default_y = gate.center_y
+            self.all_sprites.append(gate)
+
+        match self.level:
+            case 1:
+                level1()
+            case 2:
+                level2()
+            case 3:
+                level3()
 
 
     def draw_blank_spaces(self):
-        blank = arcade.Sprite("hackathon/assets/blank_space.png")
-        blank.center_x = 475
-        blank.center_y = 700
-        blank.occupant = None
-        self.blank_spaces.append(blank)
+        def level1():
+            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank.center_x = 500
+            blank.center_y = 600
+            blank.occupant = None
+            self.blank_spaces.append(blank)
 
-        blank = arcade.Sprite("hackathon/assets/blank_space.png")
-        blank.center_x = 475
-        blank.center_y = 500
-        blank.occupant = None
-        self.blank_spaces.append(blank)
+            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank.center_x = 1000
+            blank.center_y = 450
+            blank.occupant = None
+            self.blank_spaces.append(blank)
 
-        blank = arcade.Sprite("hackathon/assets/blank_space.png")
-        blank.center_x = 475
-        blank.center_y = 300
-        blank.occupant = None
-        self.blank_spaces.append(blank)
+        def level2():
+            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank.center_x = 500
+            blank.center_y = 600
+            blank.occupant = None
+            self.blank_spaces.append(blank)
 
-        blank = arcade.Sprite("hackathon/assets/blank_space.png")
-        blank.center_x = 780
-        blank.center_y = 600
-        blank.occupant = None
-        self.blank_spaces.append(blank)
+            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank.center_x = 500
+            blank.center_y = 350
+            blank.occupant = None
+            self.blank_spaces.append(blank)
 
-        blank = arcade.Sprite("hackathon/assets/blank_space.png")
-        blank.center_x = 780
-        blank.center_y = 400
-        blank.occupant = None
-        self.blank_spaces.append(blank)
+            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank.center_x = 1000
+            blank.center_y = 450
+            blank.occupant = None
+            self.blank_spaces.append(blank)
 
-        blank = arcade.Sprite("hackathon/assets/blank_space.png")
-        blank.center_x = 1074
-        blank.center_y = 500
-        blank.occupant = None
-        self.blank_spaces.append(blank)
-        pass
+        def level3():
+            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank.center_x = 475
+            blank.center_y = 700
+            blank.occupant = None
+            self.blank_spaces.append(blank)
+
+            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank.center_x = 475
+            blank.center_y = 500
+            blank.occupant = None
+            self.blank_spaces.append(blank)
+
+            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank.center_x = 475
+            blank.center_y = 300
+            blank.occupant = None
+            self.blank_spaces.append(blank)
+
+            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank.center_x = 780
+            blank.center_y = 600
+            blank.occupant = None
+            self.blank_spaces.append(blank)
+
+            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank.center_x = 780
+            blank.center_y = 400
+            blank.occupant = None
+            self.blank_spaces.append(blank)
+
+            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank.center_x = 1074
+            blank.center_y = 500
+            blank.occupant = None
+            self.blank_spaces.append(blank)
+
+
+        match self.level:
+            case 1:
+                level1()
+            case 2:
+                level2()
+            case 3:
+                level3()
 
     def draw_wires(self):
+        def level1():
+            arcade.draw_line(160, 630, 400, 630, arcade.color.RED, 5)
+            arcade.draw_line(160, 570, 400, 570, arcade.color.RED, 5)
+            arcade.draw_line(160, 420, 900, 420, arcade.color.BLACK, 5)
 
-        arcade.draw_line(160, 730, 375, 730, arcade.color.BLACK, 5)
-        arcade.draw_line(160, 670, 375, 670, arcade.color.RED, 5)
-        arcade.draw_line(160, 500, 375, 500, arcade.color.BLACK, 5)
-        arcade.draw_line(160, 325, 375, 325, arcade.color.BLACK, 5)
-        arcade.draw_line(160, 270, 375, 270, arcade.color.RED, 5)
+            arcade.draw_line(600, 600, 900, 480, self.get_color_by_logic(0, 0), 5)
+
+            arcade.draw_line(1100, 450, 1360, 500, self.get_color_by_logic(1, 1), 5)
+
+        def level2():
+            arcade.draw_line(160, 600, 400, 600, arcade.color.RED, 5)
+            arcade.draw_line(160, 350, 400, 350, arcade.color.BLACK, 5)
+
+            arcade.draw_line(600, 600, 900, 480, self.get_color_by_logic(0, 0), 5)
+
+            arcade.draw_line(600, 350, 900, 420, self.get_color_by_logic(1, 1), 5)
+
+            arcade.draw_line(1100, 450, 1360, 500, self.get_color_by_logic(2, 2), 5)
+
+        def level3():
+            arcade.draw_line(160, 730, 375, 730, arcade.color.BLACK, 5)
+            arcade.draw_line(160, 670, 375, 670, arcade.color.RED, 5)
+            arcade.draw_line(160, 500, 375, 500, arcade.color.BLACK, 5)
+            arcade.draw_line(160, 325, 375, 325, arcade.color.BLACK, 5)
+            arcade.draw_line(160, 270, 375, 270, arcade.color.RED, 5)
 
 
-        arcade.draw_line(575, 709, 680, 600, self.get_color_by_logic(0, 0), 5)
-        arcade.draw_line(575, 506, 680, 425, self.get_color_by_logic(1, 1), 5)
-        arcade.draw_line(575, 303, 680, 375, self.get_color_by_logic(2, 2), 5)
+            arcade.draw_line(575, 709, 680, 600, self.get_color_by_logic(0, 0), 5)
+            arcade.draw_line(575, 506, 680, 425, self.get_color_by_logic(1, 1), 5)
+            arcade.draw_line(575, 303, 680, 375, self.get_color_by_logic(2, 2), 5)
 
-        arcade.draw_line(880, 602, 974, 523, self.get_color_by_logic(3, 3), 5)
-        arcade.draw_line(880, 397, 974, 482, self.get_color_by_logic(4, 4), 5)
+            arcade.draw_line(880, 602, 974, 523, self.get_color_by_logic(3, 3), 5)
+            arcade.draw_line(880, 397, 974, 482, self.get_color_by_logic(4, 4), 5)
 
-        arcade.draw_line(1175, 500, 1360, 500, self.get_color_by_logic(5, 5), 5)
+            arcade.draw_line(1175, 500, 1360, 500, self.get_color_by_logic(5, 5), 5)
+
+        match self.level:
+            case 1:
+                level1()
+            case 2:
+                level2()
+            case 3:
+                level3()
 
     # def check_
 
@@ -347,16 +484,36 @@ class Electronics(Level):
                         i, j = self.get_next_wire_group(wire_group_id)
                         self.wires_group[i][j] = self.wires_group[wire_group_id][2]
                         return BLACK
-        return BLACK
+        elif len(self.wires_group[wire_group_id]) == 2:
+            self.wires_group[wire_group_id][1] = 0
+            i, j = self.get_next_wire_group(wire_group_id)
+            self.wires_group[i][j] = 0
+            return BLACK
+        else:
+            self.wires_group[wire_group_id][2] = 0
+            i, j = self.get_next_wire_group(wire_group_id)
+            self.wires_group[i][j] = self.wires_group[wire_group_id][2]
+            return BLACK
 
     def get_next_wire_group(self, id):
-        match id:
-            case 0: return 3, 0
-            case 1: return 4, 0
-            case 2: return 4, 1
-            case 3: return 5, 0
-            case 4: return 5, 1
-            case 5: return 5, 2
+        if self.level == 1:
+            match id:
+                case 0: return 1, 0
+                case 1: return 1, 2
+        elif self.level == 2:
+            match id:
+                case 0: return 2, 0
+                case 1: return 2, 1
+                case 2: return 2, 2
+        elif self.level == 3:
+            match id:
+                case 0: return 3, 0
+                case 1: return 4, 0
+                case 2: return 4, 1
+                case 3: return 5, 0
+                case 4: return 5, 1
+                case 5: return 5, 2
+
 
 
     def draw_lamp(self):
@@ -368,7 +525,8 @@ class Electronics(Level):
             arcade.draw_circle_filled(1420, 600, 20, arcade.color.GREEN)
             arcade.draw_line(1420, 500, 1420, 580, arcade.color.RED, 5)
             arcade.draw_line(1360, 500, 1420, 500, arcade.color.RED, 5)
-            self.win_window()
+            self.is_level_complete = True
+
 
     def win_window(self):
         message_box = arcade.gui.UIMessageBox(
@@ -388,36 +546,77 @@ class Electronics(Level):
     def on_message_box_close(self, button_text):
         # make action after OK | windows switch to lvl main
         # print(f"User pressed {button_text}.")
-        self.manager.clear()
-        self.window.switch_to_level(State.World)
+        if self.level == 3:
+            self.manager.clear()
+            self.window.switch_to_level(State.World)
         pass
 
     def signs_draw(self):
-        sign = arcade.Sprite("hackathon/assets/minus_power_off.png")
-        sign.center_x = 90
-        sign.center_y = 730
-        self.signs.append(sign)
+        def level1():
+            sign = arcade.Sprite("hackathon/assets/plus_power_on.png")
+            sign.center_x = 90
+            sign.center_y = 600
+            self.signs.append(sign)
 
-        sign = arcade.Sprite("hackathon/assets/plus_power_on.png")
-        sign.center_x = 90
-        sign.center_y = 670
-        self.signs.append(sign)
+            sign = arcade.Sprite("hackathon/assets/minus_power_off.png")
+            sign.center_x = 90
+            sign.center_y = 420
+            self.signs.append(sign)
 
-        sign = arcade.Sprite("hackathon/assets/minus_power_off.png")
-        sign.center_x = 90
-        sign.center_y = 500
-        self.signs.append(sign)
+        def level2():
+            sign = arcade.Sprite("hackathon/assets/plus_power_on.png")
+            sign.center_x = 90
+            sign.center_y = 600
+            self.signs.append(sign)
 
-        sign = arcade.Sprite("hackathon/assets/minus_power_off.png")
-        sign.center_x = 90
-        sign.center_y = 325
-        self.signs.append(sign)
+            sign = arcade.Sprite("hackathon/assets/minus_power_off.png")
+            sign.center_x = 90
+            sign.center_y = 350
+            self.signs.append(sign)
 
-        sign = arcade.Sprite("hackathon/assets/plus_power_on.png")
-        sign.center_x = 90
-        sign.center_y = 270
-        self.signs.append(sign)
+        def level3():
+            sign = arcade.Sprite("hackathon/assets/minus_power_off.png")
+            sign.center_x = 90
+            sign.center_y = 730
+            self.signs.append(sign)
 
+            sign = arcade.Sprite("hackathon/assets/plus_power_on.png")
+            sign.center_x = 90
+            sign.center_y = 670
+            self.signs.append(sign)
+
+            sign = arcade.Sprite("hackathon/assets/minus_power_off.png")
+            sign.center_x = 90
+            sign.center_y = 500
+            self.signs.append(sign)
+
+            sign = arcade.Sprite("hackathon/assets/minus_power_off.png")
+            sign.center_x = 90
+            sign.center_y = 325
+            self.signs.append(sign)
+
+            sign = arcade.Sprite("hackathon/assets/plus_power_on.png")
+            sign.center_x = 90
+            sign.center_y = 270
+            self.signs.append(sign)
+
+
+        match self.level:
+            case 1:
+                level1()
+            case 2:
+                level2()
+            case 3:
+                level3()
+
+    def set_wires_groups(self):
+        match self.level:
+            case 1:
+                self.wires_group = [[1, 1, 0], [0, 0, 0]]
+            case 2:
+                self.wires_group = [[1, 0], [0, 0], [0, 0, 0]]
+            case 3:
+                self.wires_group = [[0, 1, 0], [0, 0], [0, 1, 0], [0, 0], [0, 0, 0], [0, 0, 0]]
 
 # def main():
 #     """ Main function """
