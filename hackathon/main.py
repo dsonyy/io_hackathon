@@ -15,6 +15,7 @@ from .game.player import Player
 from .game.level.menu import Menu
 from .game.level.world import World
 from .game.level.electronics import Electronics
+from .game.level.menu.endscreen import EndScreen
 
 
 SCREEN_WIDTH = 1920
@@ -24,7 +25,8 @@ SCREEN_TITLE = "Starting Template"
 LEVELS: dict[State, type[Level]] = {
     State.Menu: Menu,
     State.World: World,
-    State.MinigameElectro: Electronics
+    State.MinigameElectro: Electronics,
+    State.EndScreen: EndScreen
 }
 
 
