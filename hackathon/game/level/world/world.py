@@ -42,6 +42,7 @@ class Active(IntEnum):
 
 ACTIVES: list[tuple[tuple[int, int], Any]] = [
     ((200, 300), Active.ElectronicsClassroom),
+    ((-100, 300), Active.MathClassroom),
     ((300, 100), Active.Laptop),
     ((-600, 0), Active.OfertyPracy),
     ((700, -60), Active.Wydarzenia),

@@ -539,12 +539,12 @@ class Electronics(Level):
             width=300,
             height=200,
             message_text=(
-                "Ja używam glukoza. "
-                "Glokoza glukoza 4 używa myśle 2 opcje "
-                "I każda chce użyć najwieksze opcje, pierwsza lub druga"
+                "Gratulacje!"
+                "Ukończyłeś przedmiot Technika Cyfrowa."
+                "W nagrode otrzymujesz 1 punkt ECTS i wieczną chwałe."
             ),
             callback=self.on_message_box_close,
-            buttons=["Jupijajej!"]
+            buttons=["Wróć na korytarz!"]
         )
 
         self.manager.add(message_box)
