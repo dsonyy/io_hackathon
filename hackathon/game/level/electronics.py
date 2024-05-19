@@ -44,7 +44,7 @@ class Electronics(Level):
         # self.held_blocks = None
         # self.held_blocks_original_position = None
 
-        self.level = 1
+        self.level = -3
 
         self.wires_group = None
 
@@ -68,7 +68,7 @@ class Electronics(Level):
 
         # Create your sprites and sprite lists here
 
-        # self.player = arcade.Sprite("hackathon/assets/dirt.png", 3)
+        # self.player = arcade.Sprite("hackathon/assets/cyfrowka/dirt.png", 3)
         # self.player.center_y = self.height / 2
         # self.player.left = 10
         # self.all_sprites.append(self.player)
@@ -76,6 +76,7 @@ class Electronics(Level):
         # self.held_blocks_original_position = []
 
         # for i in range(self.number_of_gates):
+        self.draw_tutorial()
         self.set_wires_groups()
 
         self.draw_gates()
@@ -103,6 +104,10 @@ class Electronics(Level):
         # Call draw() on all your sprite lists below
 
         arcade.start_render()
+        if self.level < 1:
+            self.all_sprites.draw()
+            return
+
         self.blank_spaces.draw()
         self.all_sprites.draw()
         self.signs.draw()
@@ -111,7 +116,7 @@ class Electronics(Level):
         arcade.draw_rectangle_outline(
             760,
             500,
-            1200, 
+            1200,
             600,
             arcade.color.BLACK,
             5
@@ -149,6 +154,9 @@ class Electronics(Level):
         For a full list of keys, see:
         https://api.arcade.academy/en/latest/arcade.key.html
         """
+        if key == 32 and self.level < 1:
+            self.level += 1
+            self.setup()
         # if key == 100:
         #     print(self.wires_group)
         # if key == 97:
@@ -212,7 +220,7 @@ class Electronics(Level):
         gates_height = self.window.height // 6
 
         def level1():
-            gate = arcade.Sprite("hackathon/assets/xor_gate.png")
+            gate = arcade.Sprite("hackathon/assets/cyfrowka/xor_gate.png")
             gate.gate_type = "xor"
             gate.top = gates_height
             gate.left = self.window.width // 7
@@ -220,7 +228,7 @@ class Electronics(Level):
             gate.default_y = gate.center_y
             self.all_sprites.append(gate)
 
-            gate = arcade.Sprite("hackathon/assets/or_gate.png")
+            gate = arcade.Sprite("hackathon/assets/cyfrowka/or_gate.png")
             gate.gate_type = "or"
             gate.top = gates_height
             gate.left = self.window.width // 7 * 2
@@ -229,7 +237,7 @@ class Electronics(Level):
             self.all_sprites.append(gate)
 
         def level2():
-            gate = arcade.Sprite("hackathon/assets/cable_gate.png")
+            gate = arcade.Sprite("hackathon/assets/cyfrowka/cable_gate.png")
             gate.gate_type = "cable"
             gate.top = gates_height
             gate.left = self.window.width // 7
@@ -237,7 +245,7 @@ class Electronics(Level):
             gate.default_y = gate.center_y
             self.all_sprites.append(gate)
 
-            gate = arcade.Sprite("hackathon/assets/not_gate.png")
+            gate = arcade.Sprite("hackathon/assets/cyfrowka/not_gate.png")
             gate.gate_type = "not"
             gate.top = gates_height
             gate.left = self.window.width // 7 * 2
@@ -245,7 +253,7 @@ class Electronics(Level):
             gate.default_y = gate.center_y
             self.all_sprites.append(gate)
 
-            gate = arcade.Sprite("hackathon/assets/and_gate.png")
+            gate = arcade.Sprite("hackathon/assets/cyfrowka/and_gate.png")
             gate.gate_type = "and"
             gate.top = gates_height
             gate.left = self.window.width // 7 * 3
@@ -254,7 +262,7 @@ class Electronics(Level):
             self.all_sprites.append(gate)
 
         def level3():
-            gate = arcade.Sprite("hackathon/assets/xor_gate.png")
+            gate = arcade.Sprite("hackathon/assets/cyfrowka/xor_gate.png")
             gate.gate_type = "xor"
             gate.top = gates_height
             gate.left = self.window.width // 7
@@ -262,7 +270,7 @@ class Electronics(Level):
             gate.default_y = gate.center_y
             self.all_sprites.append(gate)
 
-            gate = arcade.Sprite("hackathon/assets/not_gate.png")
+            gate = arcade.Sprite("hackathon/assets/cyfrowka/not_gate.png")
             gate.top = gates_height
             gate.gate_type = "not"
             gate.left = self.window.width // 7 * 2
@@ -270,7 +278,7 @@ class Electronics(Level):
             gate.default_y = gate.center_y
             self.all_sprites.append(gate)
 
-            gate = arcade.Sprite("hackathon/assets/and_gate.png")
+            gate = arcade.Sprite("hackathon/assets/cyfrowka/and_gate.png")
             gate.top = gates_height
             gate.gate_type = "and"
             gate.left = self.window.width // 7 * 3
@@ -278,7 +286,7 @@ class Electronics(Level):
             gate.default_y = gate.center_y
             self.all_sprites.append(gate)
 
-            gate = arcade.Sprite("hackathon/assets/and_gate.png")
+            gate = arcade.Sprite("hackathon/assets/cyfrowka/and_gate.png")
             gate.top = gates_height
             gate.gate_type = "and"
             gate.left = self.window.width // 7 * 4
@@ -286,7 +294,7 @@ class Electronics(Level):
             gate.default_y = gate.center_y
             self.all_sprites.append(gate)
 
-            gate = arcade.Sprite("hackathon/assets/cable_gate.png")
+            gate = arcade.Sprite("hackathon/assets/cyfrowka/cable_gate.png")
             gate.top = gates_height
             gate.gate_type = "cable"
             gate.left = self.window.width // 7 * 5
@@ -294,7 +302,7 @@ class Electronics(Level):
             gate.default_y = gate.center_y
             self.all_sprites.append(gate)
 
-            gate = arcade.Sprite("hackathon/assets/or_gate.png")
+            gate = arcade.Sprite("hackathon/assets/cyfrowka/or_gate.png")
             gate.top = gates_height
             gate.gate_type = "or"
             gate.left = self.window.width // 7 * 6
@@ -313,69 +321,69 @@ class Electronics(Level):
 
     def draw_blank_spaces(self):
         def level1():
-            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank = arcade.Sprite("hackathon/assets/cyfrowka/blank_space.png")
             blank.center_x = 500
             blank.center_y = 600
             blank.occupant = None
             self.blank_spaces.append(blank)
 
-            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank = arcade.Sprite("hackathon/assets/cyfrowka/blank_space.png")
             blank.center_x = 1000
             blank.center_y = 450
             blank.occupant = None
             self.blank_spaces.append(blank)
 
         def level2():
-            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank = arcade.Sprite("hackathon/assets/cyfrowka/blank_space.png")
             blank.center_x = 500
             blank.center_y = 600
             blank.occupant = None
             self.blank_spaces.append(blank)
 
-            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank = arcade.Sprite("hackathon/assets/cyfrowka/blank_space.png")
             blank.center_x = 500
             blank.center_y = 350
             blank.occupant = None
             self.blank_spaces.append(blank)
 
-            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank = arcade.Sprite("hackathon/assets/cyfrowka/blank_space.png")
             blank.center_x = 1000
             blank.center_y = 450
             blank.occupant = None
             self.blank_spaces.append(blank)
 
         def level3():
-            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank = arcade.Sprite("hackathon/assets/cyfrowka/blank_space.png")
             blank.center_x = 475
             blank.center_y = 700
             blank.occupant = None
             self.blank_spaces.append(blank)
 
-            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank = arcade.Sprite("hackathon/assets/cyfrowka/blank_space.png")
             blank.center_x = 475
             blank.center_y = 500
             blank.occupant = None
             self.blank_spaces.append(blank)
 
-            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank = arcade.Sprite("hackathon/assets/cyfrowka/blank_space.png")
             blank.center_x = 475
             blank.center_y = 300
             blank.occupant = None
             self.blank_spaces.append(blank)
 
-            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank = arcade.Sprite("hackathon/assets/cyfrowka/blank_space.png")
             blank.center_x = 780
             blank.center_y = 600
             blank.occupant = None
             self.blank_spaces.append(blank)
 
-            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank = arcade.Sprite("hackathon/assets/cyfrowka/blank_space.png")
             blank.center_x = 780
             blank.center_y = 400
             blank.occupant = None
             self.blank_spaces.append(blank)
 
-            blank = arcade.Sprite("hackathon/assets/blank_space.png")
+            blank = arcade.Sprite("hackathon/assets/cyfrowka/blank_space.png")
             blank.center_x = 1074
             blank.center_y = 500
             blank.occupant = None
@@ -551,49 +559,49 @@ class Electronics(Level):
 
     def signs_draw(self):
         def level1():
-            sign = arcade.Sprite("hackathon/assets/plus_power_on.png")
+            sign = arcade.Sprite("hackathon/assets/cyfrowka/plus_power_on.png")
             sign.center_x = 90
             sign.center_y = 600
             self.signs.append(sign)
 
-            sign = arcade.Sprite("hackathon/assets/minus_power_off.png")
+            sign = arcade.Sprite("hackathon/assets/cyfrowka/minus_power_off.png")
             sign.center_x = 90
             sign.center_y = 420
             self.signs.append(sign)
 
         def level2():
-            sign = arcade.Sprite("hackathon/assets/plus_power_on.png")
+            sign = arcade.Sprite("hackathon/assets/cyfrowka/plus_power_on.png")
             sign.center_x = 90
             sign.center_y = 600
             self.signs.append(sign)
 
-            sign = arcade.Sprite("hackathon/assets/minus_power_off.png")
+            sign = arcade.Sprite("hackathon/assets/cyfrowka/minus_power_off.png")
             sign.center_x = 90
             sign.center_y = 350
             self.signs.append(sign)
 
         def level3():
-            sign = arcade.Sprite("hackathon/assets/minus_power_off.png")
+            sign = arcade.Sprite("hackathon/assets/cyfrowka/minus_power_off.png")
             sign.center_x = 90
             sign.center_y = 730
             self.signs.append(sign)
 
-            sign = arcade.Sprite("hackathon/assets/plus_power_on.png")
+            sign = arcade.Sprite("hackathon/assets/cyfrowka/plus_power_on.png")
             sign.center_x = 90
             sign.center_y = 670
             self.signs.append(sign)
 
-            sign = arcade.Sprite("hackathon/assets/minus_power_off.png")
+            sign = arcade.Sprite("hackathon/assets/cyfrowka/minus_power_off.png")
             sign.center_x = 90
             sign.center_y = 500
             self.signs.append(sign)
 
-            sign = arcade.Sprite("hackathon/assets/minus_power_off.png")
+            sign = arcade.Sprite("hackathon/assets/cyfrowka/minus_power_off.png")
             sign.center_x = 90
             sign.center_y = 325
             self.signs.append(sign)
 
-            sign = arcade.Sprite("hackathon/assets/plus_power_on.png")
+            sign = arcade.Sprite("hackathon/assets/cyfrowka/plus_power_on.png")
             sign.center_x = 90
             sign.center_y = 270
             self.signs.append(sign)
@@ -615,6 +623,14 @@ class Electronics(Level):
                 self.wires_group = [[1, 0], [0, 0], [0, 0, 0]]
             case 3:
                 self.wires_group = [[0, 1, 0], [0, 0], [0, 1, 0], [0, 0], [0, 0, 0], [0, 0, 0]]
+
+    def draw_tutorial(self):
+        if self.level < 1:
+            photo = arcade.Sprite(f"hackathon/assets/cyfrowka/tutorial/wyklad{self.level+4}.png")
+            photo.center_x = self.window.width // 2
+            photo.center_y = self.window.height // 2
+            self.all_sprites.append(photo)
+            # photo.draw()
 
 # def main():
 #     """ Main function """
