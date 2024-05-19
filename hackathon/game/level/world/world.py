@@ -5,7 +5,6 @@ import arcade.key
 from ...player.player import Player as BasePlayer
 from ..level import Level
 
-import numpy as np
 import PIL as pil
 
 
@@ -79,7 +78,10 @@ class World(Level):
     window: arcade.Window
     
     background: arcade.SpriteList
-    hitbox: pil.Image.Image
+    
+    hitboxes: list[pil.Image.Image]
+    chunk: int = 0
+
     sprites: arcade.SpriteList
     obstacles: arcade.SpriteList
 
@@ -87,7 +89,7 @@ class World(Level):
     state: State
 
     player_bbox: tuple[tuple[int, int], ...]
-    player_collisions: list[arcade.Sprite]
+    player_collisions: tuple[bool, ...]
     player_collides: bool
 
     physics: arcade.PhysicsEngineSimple
@@ -128,7 +130,9 @@ class World(Level):
         ))
 
     def __setup_obstacles(self) -> None:
-        self.hitbox = pil.Image.open('hackathon/assets/world/map_obstacle_h.png')
+        self.hitboxes = [
+            pil.Image.open('hackathon/assets/world/map_obstacle_h.png')
+        ]
 
         # self.obstacles.append(arcade.Sprite(
         #     'hackathon/assets/world/map_obstacle_v.png',
@@ -143,21 +147,6 @@ class World(Level):
             center_y=540,
             hit_box_algorithm="Detailed"
         ))
-
-        return
-
-        for y, row in enumerate(MAP):
-            for x, obj in enumerate(row):
-                match obj:
-                    case 0:
-                        pass
-
-                    case 1:
-                        self.obstacles.append(arcade.Sprite(
-                            'hackathon/assets/world/wall.png',
-                            center_x=CELL_SIZE * x + BORDER_OFFSET,
-                            center_y=CELL_SIZE * y + BORDER_OFFSET
-                        ))
 
     def __setup_sprites(self) -> None:
         pass
@@ -187,41 +176,41 @@ class World(Level):
 
     def on_update(self, delta_time: int) -> bool:
         self.player.update(delta_time)
+        self.update_collisions()
+        # self.physics.update()
 
+    def update_collisions(self) -> None:
         self.player_bbox = self.player.bounding_box()
-
-        print(f'bbox: {self.player_bbox}')
+        hitbox = self.hitboxes[self.chunk]
 
         corner_collisions = [
-            self.hitbox.getpixel(corner)
+            hitbox.getpixel(corner)  # TODO shift according to chunk position
             for corner in self.player_bbox
         ]
 
-        self.player_collides = any(
-            all(pixel[component] == HITBOX_COLLISION_COLOR for component in range(3))
-            for pixel in corner_collisions
-        )
+        self.player_collisions = tuple(map(
+            lambda pixel: all(pixel[i] == HITBOX_COLLISION_COLOR for i in range(2)),
+            corner_collisions
+        ))
 
-        print(f'corner_collisions: {corner_collisions}')
-        print(f'player_collides: {self.player_collides}')
-
-        # self.physics.update()
+        if any(self.player_collisions):
+            self.player.stop()
     
     def on_key_press(self, key: int, modifiers: int) -> bool:
+        # self.update_collisions()
 
-        if not self.player_collides:
-            match key:
-                case arcade.key.W:
-                    self.player.move_y(self.PLAYER_SPEED)
+        match (key, self.player_collisions):
+            case (arcade.key.W, (False, False, _, _)):
+                self.player.move_y(self.PLAYER_SPEED)
 
-                case arcade.key.S:
-                    self.player.move_y(-self.PLAYER_SPEED)
+            case (arcade.key.S, (_, _, False, False)):
+                self.player.move_y(-self.PLAYER_SPEED)
 
-                case arcade.key.A:
-                    self.player.move_x(-self.PLAYER_SPEED)
+            case (arcade.key.A, (False, _, False, _)):
+                self.player.move_x(-self.PLAYER_SPEED)
 
-                case arcade.key.D:
-                    self.player.move_x(self.PLAYER_SPEED)
+            case (arcade.key.D, (_, False, _, False)):
+                self.player.move_x(self.PLAYER_SPEED)
     
     def on_key_release(self, key: int, modifiers: int) -> bool:
         match key:
