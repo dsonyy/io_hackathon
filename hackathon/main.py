@@ -7,6 +7,7 @@ template.
 If Python and Arcade are installed, this example can be run from the command line with:
 python -m arcade.examples.starting_template
 """
+from typing import Literal
 import arcade
 
 from .game import State
@@ -42,26 +43,31 @@ class MyGame(arcade.Window):
 
     levels: dict[State, Level]
 
+    plot: dict[Literal['ects'], int]
+
     def __init__(self, width, height, title):
         super().__init__(width, height, title, fullscreen=True)
 
         arcade.set_background_color(arcade.color.ALMOND)
         
-        # TODO: this is a workaround to pass and control window stuff from the game states
         self.window = self
-        
         self.levels = dict()
-        # If you have sprite lists, you should create them here,
-        # and set them to None
+
+        self.plot = {
+            'ects': 0
+        }
 
     def switch_to_level(self, state: State) -> None:
-        if state not in self.levels:
+        level = self.levels.get(state, None)
+
+        if level is None:
             level = LEVELS[state](self)
             level.setup()
-            self.levels[state] = level
 
         self.state = state
         self.level = level
+
+        self.update(1)
 
     def setup(self):
         """ Set up the game variables. Call to re-start the game. """
