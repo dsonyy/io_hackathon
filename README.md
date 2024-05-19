@@ -91,6 +91,10 @@ Na planszy gry będzie można znaleźć wiele ciekawostek. Poniżej są nasze po
    $ python3 -m hackathon
    ```
 
+## Prezentacja
+
+Prezentacja naszej gry jest dostępna [tutaj](https://docs.google.com/presentation/d/1pK_lqJU18X6ZAn85-Wo8YNKtHlTlESnHVQfW744QDuI/edit?usp=sharing).
+
 ## Autorzy
 
 #### 100 Twarzy Grzybiarzy
