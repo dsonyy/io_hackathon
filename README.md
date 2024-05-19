@@ -6,6 +6,16 @@
 
 WIrtualne Studia są immersywną grą pozwalającą doświadczyć studiów na Wydziale Informatyki. Zagłębij się w świat studenta informatyki: uczęszczaj na zajęcia, rozwiązuj zadania, zdobywaj punkty ECTS i ukończ studia. :robot:
 
+<img src="docs/ss/image.webp" width=500 />
+
+<img src="docs/ss/image (1).webp" width=500 />
+
+<img src="docs/ss/image (2).webp" width=500 />
+
+<img src="docs/ss/image (3).webp" width=500 />
+
+<img src="docs/ss/image (4).webp" width=500 />
+
 ## Świat D17
 
 Jako gracz, znajdziesz się w budynku Wydziału Informatyki na kampusie AGH. Eksploruj korytarze budynku D17. Znajdziesz w nich pracowników, sale zajęć oraz pewne sekrety...
@@ -17,10 +27,6 @@ Weź udział w zajęciach z matematyki, programowania algorytmiki oraz techniki 
 ### Zadania
 
 Prowadzący przedmiotów zlecą ci rozmaite zadania. Sposób w jaki je wykonasz wpłynie na końcową ocenę twoich studiów.
-
-## Tutorial
-
-
 
 ## Koncepcje
 
