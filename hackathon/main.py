@@ -9,6 +9,7 @@ python -m arcade.examples.starting_template
 """
 import arcade
 
+from hackathon.game.level.minigame.mathgame.math_logic import MathLevel
 from .game import State
 from .game.level import Level
 from .game.player import Player
@@ -24,7 +25,8 @@ SCREEN_TITLE = "Starting Template"
 LEVELS: dict[State, type[Level]] = {
     State.Menu: Menu,
     State.World: World,
-    State.MinigameElectro: Electronics
+    State.MinigameElectro: Electronics,
+    State.MinigameMath: MathLevel
 }
 
 
@@ -65,7 +67,7 @@ class MyGame(arcade.Window):
         """ Set up the game variables. Call to re-start the game. """
         # Create your sprites and sprite lists here
 
-        self.switch_to_level(State.Menu)
+        self.switch_to_level(State.MinigameMath)
 
         # Reset all loaded levels
         for level in self.levels.values():
