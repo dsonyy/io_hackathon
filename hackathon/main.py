@@ -16,8 +16,8 @@ from .game.level.menu import Menu
 from .game.level.world import World
 
 
-SCREEN_WIDTH = 1280
-SCREEN_HEIGHT = 1024
+SCREEN_WIDTH = 1920
+SCREEN_HEIGHT = 1080
 SCREEN_TITLE = "Starting Template"
 
 LEVELS: dict[State, type[Level]] = {
@@ -41,9 +41,10 @@ class MyGame(arcade.Window):
     levels: dict[State, Level]
 
     def __init__(self, width, height, title):
-        super().__init__(width, height, title)
+        super().__init__(width, height, title, fullscreen=True)
 
         arcade.set_background_color(arcade.color.AMAZON)
+        
         # TODO: this is a workaround to pass and control window stuff from the game states
         self.window = self
         
@@ -54,6 +55,7 @@ class MyGame(arcade.Window):
     def switch_to_level(self, state: State) -> None:
         if state not in self.levels:
             level = LEVELS[state](self)
+            level.setup()
             self.levels[state] = level
 
         self.state = state
